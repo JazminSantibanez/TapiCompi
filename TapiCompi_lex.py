@@ -1,3 +1,10 @@
+"""
+TapiCompi_lex module is a lexer for TapiCompi language.
+
+Author: Jazmín Santibáñez
+"""
+
+
 from ply import *
 import ply.lex as lex
 
@@ -35,93 +42,110 @@ reserved = {
 }
 
 # Tokens
-tokens = (
-    ## Reserved words
-    'MAIN', 'VAR', 
-    'INT', 'FLOAT', 'CHAR',
-    'FUNC', 'VOID', 'RETURN',
-    'READ', 'PRINT', 
-    'IF', 'ELSE', 
-    'WHILE', 'FOR', 'TO', 'STEP',
+tokens = [
+    # ## Reserved words
+    # 'MAIN', 'VAR', 
+    # 'INT', 'FLOAT', 'CHAR',
+    # 'FUNC', 'VOID', 'RETURN',
+    # 'READ', 'PRINT', 
+    # 'IF', 'ELSE', 
+    # 'WHILE', 'FOR', 'TO', 'STEP',
     
     ## Operators
-    'OP_assign', 
-    'OP_add', 'OP_sub', 'OP_mul', 'OP_div',
-    'OP_eq','OP_diff', 'OP_lt', 'OP_gt',
+    'OP_ASSIGN', 
+    'OP_AND', 'OP_OR', 'OP_NOT',
+    'OP_ADD', 'OP_SUBTR', 'OP_MULT', 'OP_DIV',
+    'OP_EQ','OP_DIFF', 'OP_LT', 'OP_GT',
+    
     
     ## Separators
-    'lParen', 'rParen', ## ()
-    'lBrace', 'rBrace', ## {}
-    'lBracket', 'rBracket', ## []
-    'SEP_semicolon', ## ;   
-    'SEP_comma', ## ,
+    'lPAREN', 'rPAREN', ## ()
+    'lBRACE', 'rBRACE', ## {}
+    'lBRACKET', 'rBRACKET', ## []
+    'SEP_SEMICOLON', ## ;   
+    'SEP_COMMA', ## ,
     
     'ID',
     'CTE_I', 'CTE_F', 'CTE_CHAR',
-    'LETRERO', 'COMENTARIO'
-)
+    'LETRERO', 'COMENTARIO',
+]
+
+tokens += reserved.values()
 
 
-# Simple definitions of tokens
-t_OP_assign = r'\='
+def Lexer():
+    # Simple definitions of tokens
+    t_OP_ASSIGN = r'\='
 
-t_OP_add = r'\+'
-t_OP_sub = r'\-'
-t_OP_mul = r'\*'
-t_OP_div = r'\/'
+    ## Logical operators
+    t_OP_AND = r'\&'
+    t_OP_OR = r'\|'
+    #t_OP_NOT = r'\!'
 
-t_OP_eq = r'\=\='
-t_OP_diff = r'\!\='
-t_OP_lt = r'\<'
-t_OP_gt = r'\>'
+    ## Arithmetic operators
+    t_OP_ADD = r'\+'
+    t_OP_SUBTR = r'\-'
+    t_OP_MULT = r'\*'
+    t_OP_DIV = r'\/'
 
-t_lParen = r'\('
-t_rParen = r'\)'
-t_lBrace = r'\{'
-t_rBrace = r'\}'
-t_lBracket = r'\['
-t_rBracket = r'\]'
+    ## Relational operators
+    t_OP_EQ = r'\=\='
+    t_OP_DIFF = r'\!\='
+    t_OP_LT = r'\<'
+    t_OP_GT = r'\>'
 
-t_SEP_semicolon = r'\;'
-t_SEP_comma = r'\,'
+    t_lPAREN = r'\('
+    t_rPAREN = r'\)'
+    t_lBRACE = r'\{'
+    t_rBRACE = r'\}'
+    t_lBRACKET = r'\['
+    t_rBRACKET = r'\]'
 
-t_ignore = ' \t'
+    t_SEP_SEMICOLON = r'\;'
+    t_SEP_COMMA = r'\,'
+
+    t_ignore = ' \t'
 
 
-# Definition of tokens / Regular expressions
-def t_CTE_F(t):
-    r'[0-9]+\.[0-9]+'
-    t.value = float(t.value)
-    return t
+    # Definition of tokens / Regular expressions
+    def t_CTE_F(t):
+        r'[0-9]+(\.[0-9]+)?'
+        t.value = float(t.value)
+        return t
 
-def t_CTE_I(t):
-    r'[0-9]+'
-    t.value = int(t.value)
-    return t
+    def t_CTE_I(t):
+        r'[0-9]+'
+        t.value = int(t.value)
+        return t
 
-def t_CTE_CHAR(t):
-    r'\'[a-zA-Z0-9]\''
-    return t
+    def t_CTE_CHAR(t):
+        r'\'[a-zA-Z0-9]\''
+        return t
 
-def t_LETRERO(t):
-    r'("[^\"]*")'
-    return t
+    def t_LETRERO(t):
+        r'(\"[^(\"|\')]*\")'
+        return t
 
-def t_COMENTARIO(t):
-    r'\#.*'
-    pass
+    def t_COMENTARIO(t):
+        r'\#.*'
+        pass
 
-def t_ID(t):
-    r'[a-zA-Z][a-zA-Z0-9_]*'
-    t.type = reserved.get(t.value, 'ID')
-    return t
+    def t_ID(t):
+        r'[a-zA-Z][a-zA-Z0-9_]*'
+        if t.value in reserved:
+            t.type = reserved[ t.value ]
+        #t.value = (t.value, symbol_lookup(t.value))
+        return t
 
-# Rule to track line number
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+    # Rule to track line number
+    def t_newline(t):
+        r'\n+'
+        t.lexer.lineno += len(t.value)
+        
+    # Rule to manage errors
+    def t_error(t):
+        print("Caracter no reconocido '%s'" % t.value[0])
+        t.lexer.skip(1)
     
-# Rule to manage errors
-def t_error(t):
-    print("Caracter no reconocido '%s'" % t.value[0])
-    t.lexer.skip(1)
+    # Build the lexer
+    return lex.lex() 
