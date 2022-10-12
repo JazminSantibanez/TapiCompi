@@ -48,4 +48,12 @@ cuboSem = {
 
 df_cuboSem = pd.DataFrame(cuboSem)
 
-print(df_cuboSem['==']['bool']['bool'])
+ # Access the type_res of an expression
+ # df_cuboSem['==']['bool']['bool'])
+
+def validate_type(operator, typeL, typeR):
+    try:
+        type_res = df_cuboSem[operator][typeL][typeR]
+        return type_res
+    except:
+        return -1 # Error code to handle mismatched types

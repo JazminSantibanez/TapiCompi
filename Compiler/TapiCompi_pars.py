@@ -1,5 +1,6 @@
 from ply import *
 import TapiCompi_lex
+import CuboSem
 
 tokens = TapiCompi_lex.tokens
 
@@ -33,7 +34,7 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    'aux_dv : aux_dv2 au_dv3'
+    'aux_dv : aux_dv2 aux_dv3'
 
 def p_aux_dv2(p):
     '''aux_dv2 : tipo_s 
@@ -121,8 +122,7 @@ def p_aux_fv(p):
 
 # -- <func_return> --
 def p_func_return(p):
-    'func_return : FUNC tipo_s ID lPAREN aux_fr rPAREN'
-    '                lBRACE aux_fr2 bloque_return rBRACE'
+    'func_return : FUNC tipo_s ID lPAREN aux_fr rPAREN lBRACE aux_fr2 bloque_return rBRACE'
 
 def p_aux_fr(p):
     '''aux_fr : params
@@ -155,7 +155,7 @@ def p_bloque(p):
     'bloque : lBRACE estatuto SEP_SEMICOLON aux_bloque aux_bloque2 rBRACE'
     
 def p_aux_bloque(p):
-    '''aux_bloque : comentario
+    '''aux_bloque : COMENTARIO
                   | empty'''
     
 def p_aux_bloque2(p):
@@ -174,10 +174,10 @@ def p_estatuto(p):
                 | call_func
                 | leer
                 | escribir
-                | conidicon
+                | condicion
                 | ciclo_while
                 | ciclo_for
-                | cCOMENTARIO'''
+                | COMENTARIO'''
 
 
 ## -- <asignacion> --
@@ -223,8 +223,7 @@ def p_ciclo_while(p):
 
 ## -- <ciclo_for> --
 def p_ciclo_for(p):
-    'ciclo_for : FOR lPAREN ID OP_ASSIGN h_exp'
-    '            TO h_exp rPAREN aux_ciclofor bloque'
+    'ciclo_for : FOR lPAREN ID OP_ASSIGN h_exp TO h_exp rPAREN aux_ciclofor bloque'
 
 def p_aux_ciclofor(p):
     '''aux_ciclofor : STEP h_exp
@@ -242,10 +241,10 @@ def p_aux_hexp(p):
 
 
 ## -- <s_exp> --
-def s_exp(p):
+def p_s_exp(p):
     's_exp : exp aux_sexp'
     
-def s_aux_sexp(p):
+def p_s_aux_sexp(p):
     '''aux_sexp : aux_sexp2 exp
                 | empty'''
 
@@ -318,3 +317,4 @@ def parse(data, debug=0):
     if parser.error:
         return None
     return p
+

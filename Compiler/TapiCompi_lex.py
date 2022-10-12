@@ -22,6 +22,10 @@ reserved = {
     'float' : 'FLOAT',
     'char' : 'CHAR',
     
+    ## <TIPO_C>
+    'dataframe' : 'DATAFRAME',
+    'file' : 'FILE',
+    
     ## <FUNCS>
     'func' : 'FUNC',
     'void' : 'VOID',
@@ -43,14 +47,7 @@ reserved = {
 
 # Tokens
 tokens = [
-    # ## Reserved words
-    # 'MAIN', 'VAR', 
-    # 'INT', 'FLOAT', 'CHAR',
-    # 'FUNC', 'VOID', 'RETURN',
-    # 'READ', 'PRINT', 
-    # 'IF', 'ELSE', 
-    # 'WHILE', 'FOR', 'TO', 'STEP',
-    
+        
     ## Operators
     'OP_ASSIGN', 
     'OP_AND', 'OP_OR',
@@ -72,27 +69,27 @@ tokens = [
 tokens += reserved.values()
 
 
-def Lexer():
+def TapiLexer():
     # Simple definitions of tokens
-    t_OP_ASSIGN = r'\='
+    t_OP_ASSIGN = r'='
 
     ## Logical operators
-    t_OP_AND = r'\&'
+    t_OP_AND = r'&'
     t_OP_OR = r'\|'
 
     ## Arithmetic operators
     t_OP_ADD = r'\+'
-    t_OP_SUBTR = r'\-'
+    t_OP_SUBTR = r'-'
     t_OP_MULT = r'\*'
-    t_OP_DIV = r'\/'
+    t_OP_DIV = r'/'
 
     ## Relational operators
-    t_OP_EQ = r'\=\='
-    t_OP_NEQ = r'\!\='
-    t_OP_LT = r'\<'
-    t_OP_GT = r'\>'
-    t_OP_LTE = r'\<\='
-    t_OP_GTE = r'\>\='
+    t_OP_EQ = r'=='
+    t_OP_NEQ = r'!='
+    t_OP_LT = r'<'
+    t_OP_GT = r'>'
+    t_OP_LTE = r'<='
+    t_OP_GTE = r'>='
 
     t_lPAREN = r'\('
     t_rPAREN = r'\)'
@@ -101,13 +98,24 @@ def Lexer():
     t_lBRACKET = r'\['
     t_rBRACKET = r'\]'
 
-    t_SEP_SEMICOLON = r'\;'
-    t_SEP_COMMA = r'\,'
+    t_SEP_SEMICOLON = r';'
+    t_SEP_COMMA = r','
 
-    t_ignore = ' \t'
+    t_ignore = ' \t' # Ignore spaces and tabs
 
 
     # Definition of tokens / Regular expressions
+    
+    def t_COMENTARIO(t):
+        r'\#.*'
+        pass # Token discarded
+
+    def t_ID(t):
+        r'[a-zA-Z][a-zA-Z0-9_]*'
+        t.type = reserved.get(t.value, 'ID') # Check if it is a reserved word
+        #t.value = (t.value, symbol_lookup(t.value))
+        return t
+    
     def t_CTE_F(t):
         r'[0-9]+(\.[0-9]+)?'
         t.value = float(t.value)
@@ -119,24 +127,14 @@ def Lexer():
         return t
 
     def t_CTE_CHAR(t):
-        r'\'[a-zA-Z0-9]\''
+        r'\'[a-zA-Z]\''
         return t
 
     def t_LETRERO(t):
-        r'(\"[^(\"|\')]*\")'
+        r'"[^"]*"'
         return t
 
-    def t_COMENTARIO(t):
-        r'\#.*'
-        pass
-
-    def t_ID(t):
-        r'[a-zA-Z][a-zA-Z0-9_]*'
-        if t.value in reserved:
-            t.type = reserved[ t.value ]
-        #t.value = (t.value, symbol_lookup(t.value))
-        return t
-
+    
     # Rule to track line number
     def t_newline(t):
         r'\n+'
