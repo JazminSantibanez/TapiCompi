@@ -36,6 +36,8 @@ cuboSem = {
     # Operadores relacionales
     '>': dict_Relacionales,
     '<': dict_Relacionales,
+    '>=': dict_Relacionales,
+    '<=': dict_Relacionales,
     '==': dict_EqDes,
     '!=': dict_EqDes,
 

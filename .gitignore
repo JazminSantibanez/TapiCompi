@@ -152,7 +152,6 @@ cython_debug/
 #.idea/
 
 # Folders to ignore
-ply
 Avances_Zips
 
 *.zip

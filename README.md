@@ -16,10 +16,10 @@ Progreso hasta entrega:
 * Completo. Faltan pruebas.
 
 ## Avance 2 - Cubo semántico y semántica básica de variables
-Fecha de entrega: Lunes 10 de Octubre de 2022
+Fecha de entrega: Miércoles 12 de Octubre de 2022
 
 Progreso hasta entrega:
 - Cubo semántico terminado
 - Falta comenzar la semántica básica de las variables.
 
-Incompleto. Funciona el cubo semántico.
+Funciona el cubo semántico. Incompleto. 
