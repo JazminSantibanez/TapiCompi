@@ -53,10 +53,9 @@ tokens = [
     
     ## Operators
     'OP_ASSIGN', 
-    'OP_AND', 'OP_OR', 'OP_NOT',
+    'OP_AND', 'OP_OR',
     'OP_ADD', 'OP_SUBTR', 'OP_MULT', 'OP_DIV',
-    'OP_EQ','OP_DIFF', 'OP_LT', 'OP_GT',
-    
+    'OP_EQ','OP_NEQ', 'OP_LT', 'OP_GT', 'OP_LTE', 'OP_GTE',
     
     ## Separators
     'lPAREN', 'rPAREN', ## ()
@@ -80,7 +79,6 @@ def Lexer():
     ## Logical operators
     t_OP_AND = r'\&'
     t_OP_OR = r'\|'
-    #t_OP_NOT = r'\!'
 
     ## Arithmetic operators
     t_OP_ADD = r'\+'
@@ -90,9 +88,11 @@ def Lexer():
 
     ## Relational operators
     t_OP_EQ = r'\=\='
-    t_OP_DIFF = r'\!\='
+    t_OP_NEQ = r'\!\='
     t_OP_LT = r'\<'
     t_OP_GT = r'\>'
+    t_OP_LTE = r'\<\='
+    t_OP_GTE = r'\>\='
 
     t_lPAREN = r'\('
     t_rPAREN = r'\)'
