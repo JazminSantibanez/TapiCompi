@@ -48,8 +48,8 @@ cuboSem = {
 
 df_cuboSem = pd.DataFrame(cuboSem)
 
- # Access the type_res of an expression
- # df_cuboSem['==']['bool']['bool'])
+# Access the type_res of an expression
+# df_cuboSem['==']['bool']['bool'])
 
 def validate_type(operator, typeL, typeR):
     try:

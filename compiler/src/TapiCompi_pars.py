@@ -1,6 +1,6 @@
 from ply import *
 import TapiCompi_lex
-import CuboSem
+import libs.CuboSem
 
 tokens = TapiCompi_lex.tokens
 
@@ -266,6 +266,10 @@ def p_aux_exp(p):
     '''aux_exp : OP_ADD exp
                | OP_SUBTR exp
                | empty'''
+    if p[1] == '+':
+        p[0] == p[1] + p[2]
+    elif p[1] == '-':
+        p[0] == p[1] - p[2]
            
                
 ## -- <termino> --
@@ -276,6 +280,10 @@ def p_aux_termino(p):
     '''aux_termino : OP_MULT termino
                    | OP_DIV termino
                    | empty'''
+    if p[1] == '*':
+        p[0] == p[1] * p[2]
+    elif p[1] == '/':
+        p[0] == p[1] / p[2]
            
                    
 ## -- <factor> --
@@ -286,6 +294,10 @@ def p_aux_factor(p):
     '''aux_factor : OP_ADD 
                     | OP_SUBTR 
                     | empty'''
+    if p[1] == '+':
+        p[0] == p[1]
+    elif p[1] == '-':
+        p[0] == -p[1]
                     
 def p_aux_factor2(p):
     '''aux_factor2 : CTE_I
