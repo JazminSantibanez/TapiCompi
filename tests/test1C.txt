@@ -1,0 +1,7 @@
+# queso
+
+main()
+{
+	# queso
+	var int a ;
+}
