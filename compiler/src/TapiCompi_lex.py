@@ -12,6 +12,7 @@ import src.ply.lex as lex
 reserved = {
     
     ## <PROGRAMA>
+    'program' : 'PROGRAM',
     'main' : 'MAIN',
     
     ## <DEC_VAR>
@@ -60,6 +61,7 @@ tokens = [
     'lBRACKET', 'rBRACKET', ## []
     'SEP_SEMICOLON', ## ;   
     'SEP_COMMA', ## ,
+    'SEP_COLON', ## :
     
     'ID',
     'CTE_I', 'CTE_F', 'CTE_CHAR',
@@ -98,6 +100,7 @@ t_rBRACKET = r'\]'
 
 t_SEP_SEMICOLON = r';'
 t_SEP_COMMA = r','
+t_SEP_COLON = r'\:'
 
 t_ignore = ' \t' # Ignore spaces and tabs
 

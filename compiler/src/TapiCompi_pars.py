@@ -5,11 +5,18 @@ import libs.CuboSem
 
 #  Definition of rules
 
-## -- <programa> --
+precedence = (
+    ('left', 'OP_EQ', 'OP_NEQ', 'OP_LT', 'OP_GT', 'OP_LTE', 'OP_GTE'),
+    ('left', 'OP_ADD', 'OP_SUBTR'),
+    ('left', 'OP_MULT', 'OP_DIV'),
+    ('left', 'OP_AND', 'OP_OR'),
+    ('right', 'OP_ASSIGN'),
+)
 
+## -- <programa> --
 def p_programa(p):
     '''
-    programa : aux_prog aux_prog2 MAIN lPAREN rPAREN cuerpo
+    programa : PROGRAM ID SEP_COLON aux_prog aux_prog2 MAIN lPAREN rPAREN cuerpo
     '''
     p[0] = "Success"
 
@@ -214,84 +221,49 @@ def p_ciclo_for(p):
     'ciclo_for : FOR lPAREN ID OP_ASSIGN h_exp TO h_exp rPAREN aux_ciclofor bloque'
 
 def p_aux_ciclofor(p):
-    '''aux_ciclofor : STEP h_exp
+    '''aux_ciclofor : STEP 
                     | empty'''
 
 
 ## -- <h_exp> --
 def p_h_exp(p):
-    'h_exp : s_exp aux_hexp'
-
-def p_aux_hexp(p):
-    '''aux_hexp : OP_AND s_exp
-                | OP_OR s_exp
-                | empty'''
-
+    '''h_exp : s_exp
+             | s_exp OP_OR h_exp
+             | s_exp OP_AND h_exp'''
 
 ## -- <s_exp> --
 def p_s_exp(p):
-    's_exp : exp aux_sexp'
-    
-def p_aux_sexp(p):
-    '''aux_sexp : aux_sexp2 exp
-                | empty'''
+    '''s_exp : exp
+             | exp aux_s_exp s_exp'''
 
-def p_aux_sexp2(p):
-    '''aux_sexp2 : OP_EQ
-                | OP_NEQ
-                | OP_GT
-                | OP_LT
-                | OP_GTE
-                | OP_LTE'''
-
+def p_aux_s_exp(p):
+    '''aux_s_exp : OP_EQ
+                 | OP_NEQ
+                 | OP_GT
+                 | OP_LT
+                 | OP_GTE
+                 | OP_LTE'''
 
 ## -- <exp> --
 def p_exp(p):
-    'exp : termino aux_exp'
+    '''exp : termino
+           | termino OP_ADD exp
+           | termino OP_SUBTR exp'''
 
-def p_aux_exp(p):
-    '''aux_exp : OP_ADD termino
-               | OP_SUBTR termino
-               | empty'''
-    if p[1] == '+':
-        p[0] == p[1] + p[2]
-    elif p[1] == '-':
-        p[0] == p[1] - p[2]
-           
-               
 ## -- <termino> --
 def p_termino(p):
-    'termino : factor aux_termino'
-
-def p_aux_termino(p):
-    '''aux_termino : OP_MULT factor
-                   | OP_DIV factor
-                   | empty'''
-    if p[1] == '*':
-        p[0] == p[1] * p[2]
-    elif p[1] == '/':
-        p[0] == p[1] / p[2]
+    '''termino : factor
+               | factor OP_MULT termino
+               | factor OP_DIV termino'''
            
-                   
-## -- <factor> --
+## -- <factor> --  
+    #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
 def p_factor(p):
-    'factor : aux_factor aux_factor2'
-    
-def p_aux_factor(p):
-    '''aux_factor : OP_ADD 
-                    | OP_SUBTR 
-                    | empty'''
-    if p[1] == '+':
-        p[0] == p[1]
-    elif p[1] == '-':
-        p[0] == -p[1]
-                    
-def p_aux_factor2(p):
-    '''aux_factor2 : CTE_I
-                   | CTE_F
-                   | h_exp
-                   | call_func
-                   | call_var'''
+    '''factor : lPAREN h_exp rPAREN
+              | CTE_I
+              | CTE_F
+              | call_func
+              | call_var'''
 
 # Error rule for syntax errors
 def p_error(p):

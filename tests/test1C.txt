@@ -1,4 +1,5 @@
 # queso
+program quesito:
 
 main()
 {
