@@ -24,3 +24,9 @@ Progreso hasta entrega:
 - Se comenzaron a escribir consideraciones básicas para la semántica.
 
 Funciona el cubo semántico.
+
+## Avance 3
+Correcion de gramática en expresiones.
+Funciona sin warnings.
+
+Se realizaron pruebas y compila exitosamente.
