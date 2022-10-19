@@ -22,6 +22,7 @@ reserved = {
     'int' : 'INT',
     'float' : 'FLOAT',
     'char' : 'CHAR',
+    'bool' : 'BOOL',
     
     ## <TIPO_C>
     'dataframe' : 'DATAFRAME',
