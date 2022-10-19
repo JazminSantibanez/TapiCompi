@@ -1,39 +1,43 @@
+# Path: TapiCompi\compiler\libs\CuboSem.py
+
 import numpy as np
 import pandas as pd
+from enums import Type
+
 
 dict_MultDiv = {
-    'int': {'int': 'int', 'float': 'int'},
-    'float': {'int': 'int', 'float': 'float'},
+    Type.INT : {Type.INT: Type.INT, Type.FLOAT: Type.INT},
+    Type.FLOAT: {Type.INT: Type.INT, Type.FLOAT: Type.FLOAT},
 }
 
 dict_SumRes = {
-    'int': {'int': 'int', 'float': 'float'},
-    'float': {'int': 'float', 'float': 'float'},
+    Type.INT: {Type.INT: Type.INT, Type.FLOAT: Type.FLOAT},
+    Type.FLOAT: {Type.INT: Type.FLOAT, Type.FLOAT: Type.FLOAT},
 }
 
 dict_Relacionales = {
-    'int': {'int': 'bool', 'float': 'bool'},
-    'float': {'int': 'bool', 'float': 'bool'},
+    Type.INT: {Type.INT: Type.BOOL, Type.FLOAT: Type.BOOL},
+    Type.FLOAT: {Type.INT: Type.BOOL, Type.FLOAT: Type.BOOL},
 }
 
 dict_EqDes = dict_Relacionales.copy()
-dict_EqDes['bool'] = {'bool': 'bool'}
-dict_EqDes['char'] = {'char': 'bool'}
+dict_EqDes[Type.BOOL] = {Type.BOOL: Type.BOOL}
+dict_EqDes[Type.CHAR] = {Type.CHAR: Type.BOOL}
 
 dict_Logicos = {
-    'bool': {'bool': 'bool'},
+    Type.BOOL: {Type.BOOL: Type.BOOL},
 }
 
-# Creacion de un dataframe para almacenar los tipos de datos
+# Create semantic cube for operations between types of variables
 
-cuboSem = {
-    # Operadores aritmeticos
+Cubo_Sem = {
+    # Arithmetic operators
     '*': dict_MultDiv,
     '/': dict_MultDiv,
     '+': dict_SumRes,
     '-': dict_SumRes,
 
-    # Operadores relacionales
+    # Relational operators
     '>': dict_Relacionales,
     '<': dict_Relacionales,
     '>=': dict_Relacionales,
@@ -41,15 +45,15 @@ cuboSem = {
     '==': dict_EqDes,
     '!=': dict_EqDes,
 
-    # Operadores logicos
+    # Logic operators
     '&': dict_Logicos,
     '|': dict_Logicos,
 }
 
-df_cuboSem = pd.DataFrame(cuboSem)
+df_cuboSem = pd.DataFrame(Cubo_Sem)
 
 # Access the type_res of an expression
-# df_cuboSem['==']['bool']['bool'])
+# df_cuboSem['=='][Type.BOOL][Type.BOOL]
 
 def validate_type(operator, typeL, typeR):
     try:
@@ -57,3 +61,4 @@ def validate_type(operator, typeL, typeR):
         return type_res
     except:
         return -1 # Error code to handle mismatched types
+    

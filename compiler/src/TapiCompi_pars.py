@@ -1,8 +1,6 @@
 from src.ply import *
 from src.TapiCompi_lex import tokens
 
-import libs.CuboSem
-
 #  Definition of rules
 
 precedence = (
@@ -80,7 +78,8 @@ def p_aux_dv7(p):
 def p_tipo_s(p):
     '''tipo_s : INT
               | FLOAT
-              | CHAR'''
+              | CHAR
+              | BOOL'''
 
 
 # -- <tipo_c> --
