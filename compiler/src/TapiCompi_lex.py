@@ -1,8 +1,8 @@
-"""
-TapiCompi_lex module is a lexer for TapiCompi language.
-
-Author: Jazmín Santibáñez
-"""
+#
+# TapiCompi_lex module is a lexer for TapiCompi language.
+#
+# Author: Jazmín Santibáñez
+#
 
 
 from src.ply import *
