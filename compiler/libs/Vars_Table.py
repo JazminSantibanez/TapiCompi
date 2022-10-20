@@ -11,13 +11,22 @@
 
 from enums import Type
 
-# Class: Vars_Info
-# Description: This class is used to store the information 
-#               of the variables
-# Attributes: Type, dirV (virtual direction)
+
 class Var_Info:
-    def __init__(self, type, dirV):
-        self.type = type
+    """ 
+    Description: This class is used to store the information 
+            of the variables
+    Attributes:
+        type (Type) : Type of the variable
+        dirV (int) : Virtual direction 
+    """
+    def __init__(self, type : Type, dirV : int):
+        '''
+        Args:
+            type (Type) : Type of the variable
+            dirV (int) : Virtual direction
+        '''
+        self.type = type 
         self.dirV = dirV
         
     def  get_Type(self):
@@ -27,20 +36,27 @@ class Var_Info:
         return self.dirV
 
 
-# Class: Vars_Table
-# Description: Class that contains the variables table
-#   Uses a dictionary where 
-#   key: variable name
-#   value: Vars_Info object
+
 class Vars_Table:
-    
+    """ 
+    Description: Class that contains the variables table \n
+    Uses a dictionary where 
+        * key: variable name
+        * value: Var_Info object
+    """
+        
     # Constructor
     # Vars_Table must be initialized with an empty dictionary
     def __init__(self):
         self.Table = {}
 
     # Adds variable to the table
-    def add_Variable(self, name, type, dirV):
+    def add_Variable(self, name : str, type : Type, dirV : int):
+        '''
+        Args:
+            type (Type) : type of the variable
+            dirV (int) : virtual direction
+        '''
         self.Table[name] = Var_Info(type, dirV)
     
     # Returns variable info from the table

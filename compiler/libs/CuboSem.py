@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from pyparsing import Char
 from enums import Type
 
 
@@ -55,7 +56,22 @@ df_cuboSem = pd.DataFrame(Cubo_Sem)
 # Access the type_res of an expression
 # df_cuboSem['=='][Type.BOOL][Type.BOOL]
 
-def validate_type(operator, typeL, typeR):
+def validate_type(
+    operator : Char, 
+    typeL : Type, 
+    typeR : Type) -> Type:
+    '''
+    Function that checks if the operation between two types is valid.
+    
+    Args:
+        operator (char): Operator of the operation.
+        typeL (Type): Type of the left operand.
+        typeR (Type): Type of the right operand.
+        
+    Returns:
+        Type: Type of the result of the operation.
+        -1 if the operation is not valid.
+    '''
     try:
         type_res = df_cuboSem[operator][typeL][typeR]
         return type_res
