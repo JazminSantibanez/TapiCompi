@@ -5,7 +5,8 @@ main()
 {
 	# queso
 	var 
-	int a ;
-	float ab;
+	int a, b ;
+	float ab, bb;
+	bool t;
 
 }

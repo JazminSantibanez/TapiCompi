@@ -55,15 +55,18 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    'aux_dv : aux_dv2 save_var_type aux_dv3'
-
-def p_aux_dv2(p):
-    '''aux_dv2 : tipo_s 
+    '''aux_dv : aux_dv2 save_var_type aux_dv3 SEP_SEMICOLON
+                | aux_dv2 save_var_type aux_dv3 SEP_SEMICOLON aux_dv
+    
+    '''
+    
+def p_aux_dv2 (p):
+    '''aux_dv2 : tipo_s
                 | tipo_c'''
     p[0] = p[1] # Pass the token to the parent rule
-
+    
 def p_aux_dv3(p):
-    'aux_dv3 : ID save_var aux_dv4 aux_dv6 SEP_SEMICOLON aux_dv7'
+    'aux_dv3 : ID save_var aux_dv4 aux_dv6'
 
 def p_aux_dv4(p):
     '''aux_dv4 : arr aux_dv5
@@ -72,17 +75,11 @@ def p_aux_dv4(p):
 def p_aux_dv5(p):
     '''aux_dv5 : arr
                | empty'''
-
-# Declare another variable of the same type
+               
 def p_aux_dv6(p):
     '''aux_dv6 : SEP_COMMA aux_dv3
                | empty'''
-
-# Declares a variable of other type
-def p_aux_dv7(p):
-    '''aux_dv7 : aux_dv
-               | empty'''
-
+               
 # -- <tipo_s> --
 def p_tipo_s(p):
     '''tipo_s : INT
