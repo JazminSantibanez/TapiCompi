@@ -3,6 +3,7 @@ from src.ply import *
 from src.TapiCompi_lex import tokens
 
 from libs.Functions_Directory import Functions_Directory
+from libs.Vars_Table import *
 
 # ----------- Parsing Rules  ----------- #
 
@@ -23,7 +24,10 @@ def p_programa(p):
     
     global directory
     directory.print_Directory()
-    directory.Table['global'].print_VarsTable()
+    #directory.Table['global'].print_VarsTable()
+    
+    for key in directory.Table:
+        directory.Table[key].print_VarsTable()
     
 
 def p_aux_prog(p):
@@ -55,9 +59,8 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    '''aux_dv : aux_dv2 save_var_type aux_dv3 SEP_SEMICOLON
-                | aux_dv2 save_var_type aux_dv3 SEP_SEMICOLON aux_dv
-    
+    '''aux_dv : aux_dv2 save_type aux_dv3 SEP_SEMICOLON
+                | aux_dv2 save_type aux_dv3 SEP_SEMICOLON aux_dv
     '''
     
 def p_aux_dv2 (p):
@@ -109,6 +112,7 @@ def p_aux_arr(p):
 # -- <call_var> --
 def p_call_var(p):
     'call_var : ID aux_cv'
+    p[0] = p[1] # Pass the token to the parent rule
 
 def p_aux_cv(p):
     '''aux_cv : arr aux_cv2
@@ -121,38 +125,26 @@ def p_aux_cv2(p):
 
 # -- <dec_func> --
 def p_dec_func(p):
-    '''dec_func : func_void 
-                | func_return'''
+    'dec_func : FUNC aux_df save_func_type ID save_func lPAREN aux_df2 rPAREN cuerpo'
+    
+def p_aux_df(p):
+    '''aux_df : VOID
+              | tipo_s'''
+    p[0] = p[1] # Pass the token to the parent rule
+    
+def p_aux_df2(p):
+    '''aux_df2 : params
+               | empty'''
 
 
 ## -- <params> --
 def p_params(p):
-    'params : tipo_s call_var aux_params'
+    'params : tipo_s save_type call_var add_param aux_params'
 
 def p_aux_params(p):
     '''aux_params : SEP_COMMA params
                   | empty'''
-
-
-# -- <func_void> --
-def p_func_void(p):
-    'func_void : FUNC VOID ID lPAREN aux_fun rPAREN cuerpo'
-
-
-# -- <func_return> --
-def p_func_return(p):
-    'func_return : FUNC tipo_s ID lPAREN aux_fun rPAREN cuerpo'
-    
-
-def p_aux_fun(p):
-    '''aux_fun : params
-              | empty'''
               
-              
-## -- <return> --
-def p_return(p):
-    'return : RETURN lPAREN h_exp rPAREN'
-
 
 ## -- <call_func>
 def p_call_func(p):
@@ -181,7 +173,12 @@ def p_aux_estatuto(p):
                     | ciclo_while
                     | ciclo_for
                     | return'''
-  
+
+## -- <return> --
+def p_return(p):
+    'return : RETURN lPAREN h_exp rPAREN'
+    
+    
 ## -- <asignacion> --
 def p_asignacion(p):
     'asignacion : call_var OP_ASSIGN h_exp' 
@@ -299,6 +296,7 @@ directory = None  # Variable that stores the directory of functions
 scope = None # Variable that stores the current scope
 current_type = None # Variable that stores the current type of variables to store
 current_var = None # Variable that stores the current variable that is being declared
+function_type = None # Variable that stores the type of function that is being declared
 
 # ----------- Neuralgic Points ----------- #
 
@@ -310,12 +308,12 @@ def p_create_funcs_dict(p):
     
     global directory
     directory = Functions_Directory()
-    directory.add_Function(scope, 'void', 0, [])    
+    directory.add_Function(scope, 'void', 0)    
     directory.Table[scope].varsTable.add_Variable(p[-1], 'NameProg', 0)
 
 
-def p_save_var_type(p):
-    'save_var_type : '
+def p_save_type(p):
+    'save_type : '
     
     global current_type    
     current_type = p[-1]
@@ -332,6 +330,26 @@ def p_add_var_dimension(p):
     'add_var_dimension : '
     
     directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
+    
+def p_save_func_type(p):
+    'save_func_type : '
+    
+    global function_type
+    function_type = p[-1]
+    
+def p_save_func(p):
+    'save_func : '
+    
+    global scope
+    scope = p[-1]
+    
+    directory.add_Function(scope, function_type, 0)
+    
+def p_add_param(p):
+    'add_param : '
+    
+    directory.add_Func_Param(scope, current_type)
+    directory.Table[scope].varsTable.add_Variable(p[-1], current_type, 0)
 
 # ----------- Methods ----------- #
 

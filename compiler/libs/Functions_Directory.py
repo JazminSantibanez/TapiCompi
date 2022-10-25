@@ -10,39 +10,42 @@ class Function_Info:
     Attributes:
         name (str) : name of the function 
         type (Type) : Type of the function
-        dirV (int) : virtual direction
-        numParams (int) : # of parameters
-        parms (list) : type of parameters
         varsTable (Vars_Table): table of variables 
     """
     #Constructor
-    def __init__(self, name : str, type : Type, dirV : int, params : list):
+    def __init__(self, name : str, type : Type, dirInicio : int):
         '''
         Args:
             name (str) : name of the function
             type (Type) : Type of the function
-            dirV (int) : virtual direction
-            params (list) : type of parameters
+            dirInicio (int) : virtual direction
         '''
         self.name = name
         self.type = type
-        self.dirV = dirV
-        self.params = params
-        self.numParams = len(params)
         self.varsTable = Vars_Table()
         
+        self.dirInicio = dirInicio
+        self.Params = []
+        self.numParams = 0
+        
+        # Function resources
+        self.num_int_local = 0
+        self.num_int_temp = 0
+        self.num_float_local = 0
+        self.num_float_temp = 0
+        self.num_char_local = 0
+        self.num_char_temp = 0
+        self.num_bool_local = 0
+        self.num_bool_temp = 0
+        
+        
     # Getters
-    def get_Type(self):
-        return self.type
+    def get_VarsTable(self):
+        return self.varsTable
     
-    def get_DirV(self):
-        return self.dirV
-
-    def get_Params(self):
-        return self.params
-    
-    def get_NumParams(self):
-        return self.numParams
+    def add_Param(self, type):
+        self.Params.append(type)
+        self.numParams += 1
     
     def print_VarsTable(self):
         self.varsTable.print_Table(self.name)
@@ -59,24 +62,23 @@ class Functions_Directory:
     Args:
         name (str) : name of the function
         type (Type) : type of the function
-        dirV (int) : virtual direction
+        dirInicio (int) : virtual direction
     '''
     # Constructor
     def __init__(self):
         self.Table = {}
     
     
-    def add_Function(self, name : str, type : Type, dirV : int, params : list):
+    def add_Function(self, name : str, type : Type, dirV : int):
         '''
         Adds a function to the directory
         
         Args:
             name (str) : name of the function
             type (Type) : type of the function
-            dirV (int) : virtual direction
-            params (list) : type of parameters
+            dirInicio (int) : virtual direction
         '''
-        self.Table[name] = Function_Info(name, type, dirV, params)
+        self.Table[name] = Function_Info(name, type, dirV)
     
     
     def get_Function(self, name):
@@ -86,16 +88,19 @@ class Functions_Directory:
     def check_Existence(self, name):
         return name in self.Table
     
+    def add_Func_Param(self, name, type):
+        self.Table[name].add_Param(type)
+    
     
     def print_Directory(self):
         print("\n-- Directory of functions: --")
         
         for key, value in self.Table.items():
             print(" > Name:", key,
-                  "Type: ", value.get_Type(),
-                  "DirV: ", value.get_DirV(),
-                  "# Params: ", value.get_NumParams(),
-                  "ParamsType: ", value.get_Params())
+                  "Type:", value.type,
+                  "DirV:", value.dirInicio,
+                  "NumParams:", value.numParams,
+                  "Params:", value.Params)
             
         #print(" < End of directory")
         

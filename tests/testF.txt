@@ -6,7 +6,17 @@ int a, b, c[1], d[2][5] ;
 float ab, bb;
 bool t;
 
+func void fun1 ()
+{
+    #
+}
+
+func int fun2 (float size)
+{
+    #
+}
+
 main()
 {
-	#a
+
 }

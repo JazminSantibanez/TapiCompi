@@ -4,6 +4,7 @@ import sys
 
 
 def run(code):
+    #Tokenize(code)
     try:
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
@@ -13,7 +14,7 @@ def run(code):
         
     except EOFError:
         print(EOFError)
-    
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

@@ -1,6 +1,7 @@
 from enum import Enum
 
 # enum value --> {nameClass}.{key}.value)
+#                   Type[varKey].value
 #  enum name --> {nameClass}(value).name
 
 class Type(Enum):
@@ -15,4 +16,3 @@ class Type(Enum):
     FLOAT = 2
     CHAR = 3
     BOOL = 4
-    
