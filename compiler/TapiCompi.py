@@ -7,9 +7,9 @@ def run(code):
     try:
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
-            print('Compilacion exitosa')
+            print('\nCompilacion exitosa')
         else:
-            print('Compilacion fallida')
+            print('\nCompilacion fallida')
         
     except EOFError:
         print(EOFError)

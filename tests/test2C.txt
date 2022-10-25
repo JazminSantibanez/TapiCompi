@@ -1,0 +1,11 @@
+# queso
+program quesito:
+
+main()
+{
+	# queso
+	var 
+	int a ;
+	float ab;
+
+}

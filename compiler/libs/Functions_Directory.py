@@ -1,5 +1,5 @@
-from Vars_Table import Vars_Table
-from enums import Type
+from libs.Vars_Table import Vars_Table
+from libs.enums import Type
 # Path: TapiCompi.compiler.libs
 
 
@@ -7,7 +7,8 @@ class Function_Info:
     """ 
     Description: This class is used to store the information
                 of the functions
-    Attributes: 
+    Attributes:
+        name (str) : name of the function 
         type (Type) : Type of the function
         dirV (int) : virtual direction
         numParams (int) : # of parameters
@@ -15,13 +16,15 @@ class Function_Info:
         varsTable (Vars_Table): table of variables 
     """
     #Constructor
-    def __init__(self, type : Type, dirV : int, params : list):
+    def __init__(self, name : str, type : Type, dirV : int, params : list):
         '''
         Args:
+            name (str) : name of the function
             type (Type) : Type of the function
             dirV (int) : virtual direction
             params (list) : type of parameters
         '''
+        self.name = name
         self.type = type
         self.dirV = dirV
         self.params = params
@@ -40,6 +43,9 @@ class Function_Info:
     
     def get_NumParams(self):
         return self.numParams
+    
+    def print_VarsTable(self):
+        self.varsTable.print_Table(self.name)
         
 
 
@@ -70,7 +76,7 @@ class Functions_Directory:
             dirV (int) : virtual direction
             params (list) : type of parameters
         '''
-        self.Table[name] = Function_Info(type, dirV, params)
+        self.Table[name] = Function_Info(name, type, dirV, params)
     
     
     def get_Function(self, name):
@@ -82,16 +88,16 @@ class Functions_Directory:
     
     
     def print_Directory(self):
-        print("\n> Directory of functions: ")
+        print("\n-- Directory of functions: --")
         
         for key, value in self.Table.items():
-            print("  Name:", key,
+            print(" > Name:", key,
                   "Type: ", value.get_Type(),
                   "DirV: ", value.get_DirV(),
                   "# Params: ", value.get_NumParams(),
                   "ParamsType: ", value.get_Params())
             
-        print("< End of directory")
+        #print(" < End of directory")
         
         
 """ if __name__ == '__main__':
@@ -103,4 +109,4 @@ class Functions_Directory:
     print("func1 exists: ", directory.check_Existence("func1"))
     print("func3 exists: ", directory.check_Existence("func3"))
     
-    directory.print_Directory() """
+    directory.Table['func1'] """

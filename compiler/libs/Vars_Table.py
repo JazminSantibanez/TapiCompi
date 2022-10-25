@@ -9,7 +9,7 @@
 
 # Path: TapiCompi.compiler.libs
 
-from enums import Type
+from libs.enums import Type
 
 
 class Var_Info:
@@ -68,15 +68,15 @@ class Vars_Table:
     def check_Existence(self, name):
         return name in self.Table
     
-    def print_Table(self):
-        print("> Table of variables: ")
+    def print_Table(self, nameFunc):
+        print("\n-- Table of variables for", {nameFunc}, ": --")
         
         for key, value in self.Table.items():
-            print("Name:", key,
+            print(" > Name:", key,
                   "Type: ", value.get_Type(),
                   "DirV: ", value.get_DirV())
         
-        print("> End of table")    
+        #print(" < End of table")    
     
 # Tests
 """ if __name__ == '__main__':

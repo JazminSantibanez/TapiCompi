@@ -1,7 +1,10 @@
+from msilib.schema import Directory
 from src.ply import *
 from src.TapiCompi_lex import tokens
 
-#  Definition of rules
+from libs.Functions_Directory import Functions_Directory
+
+# ----------- Parsing Rules  ----------- #
 
 precedence = (
     ('left', 'OP_EQ', 'OP_NEQ', 'OP_LT', 'OP_GT', 'OP_LTE', 'OP_GTE'),
@@ -14,9 +17,14 @@ precedence = (
 ## -- <programa> --
 def p_programa(p):
     '''
-    programa : PROGRAM ID SEP_COLON aux_prog aux_prog2 MAIN lPAREN rPAREN cuerpo
+    programa : PROGRAM ID create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN lPAREN rPAREN cuerpo
     '''
     p[0] = "Success"
+    
+    global directory
+    directory.print_Directory()
+    directory.Table['global'].print_VarsTable()
+    
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -47,14 +55,15 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    'aux_dv : aux_dv2 aux_dv3'
+    'aux_dv : aux_dv2 save_var_type aux_dv3'
 
 def p_aux_dv2(p):
     '''aux_dv2 : tipo_s 
                 | tipo_c'''
+    p[0] = p[1] # Pass the token to the parent rule
 
 def p_aux_dv3(p):
-    'aux_dv3 : ID aux_dv4 aux_dv6 SEP_SEMICOLON aux_dv7'
+    'aux_dv3 : ID save_var aux_dv4 aux_dv6 SEP_SEMICOLON aux_dv7'
 
 def p_aux_dv4(p):
     '''aux_dv4 : arr aux_dv5
@@ -64,12 +73,12 @@ def p_aux_dv5(p):
     '''aux_dv5 : arr
                | empty'''
 
-#Declarar más variables de un mismo timpo
+# Declare another variable of the same type
 def p_aux_dv6(p):
     '''aux_dv6 : SEP_COMMA aux_dv3
                | empty'''
 
-#Declarar otro variables de otro tipo
+# Declares a variable of other type
 def p_aux_dv7(p):
     '''aux_dv7 : aux_dv
                | empty'''
@@ -80,12 +89,14 @@ def p_tipo_s(p):
               | FLOAT
               | CHAR
               | BOOL'''
+    p[0] = p[1] # Pass the token to the parent rule
 
 
 # -- <tipo_c> --
 def p_tipo_c(p):
     '''tipo_c : DATAFRAME
               | FILE '''
+    p[0] = p[1] # Pass the token to the parent rule
 
 
 # -- <arr> --
@@ -130,16 +141,16 @@ def p_func_void(p):
     'func_void : FUNC VOID ID lPAREN aux_fun rPAREN cuerpo'
 
 
-def p_aux_fun(p):
-    '''aux_fun : params
-              | empty'''
-
-
 # -- <func_return> --
 def p_func_return(p):
     'func_return : FUNC tipo_s ID lPAREN aux_fun rPAREN cuerpo'
     
 
+def p_aux_fun(p):
+    '''aux_fun : params
+              | empty'''
+              
+              
 ## -- <return> --
 def p_return(p):
     'return : RETURN lPAREN h_exp rPAREN'
@@ -220,15 +231,18 @@ def p_ciclo_for(p):
     'ciclo_for : FOR lPAREN ID OP_ASSIGN h_exp TO h_exp rPAREN aux_ciclofor bloque'
 
 def p_aux_ciclofor(p):
-    '''aux_ciclofor : STEP 
+    '''aux_ciclofor : STEP h_exp
                     | empty'''
 
 
 ## -- <h_exp> --
 def p_h_exp(p):
     '''h_exp : s_exp
-             | s_exp OP_OR h_exp
-             | s_exp OP_AND h_exp'''
+             | s_exp aux_h_exp h_exp'''
+             
+def p_aux_h_exp(p):
+    '''aux_h_exp : OP_AND
+                 | OP_OR'''
 
 ## -- <s_exp> --
 def p_s_exp(p):
@@ -246,8 +260,11 @@ def p_aux_s_exp(p):
 ## -- <exp> --
 def p_exp(p):
     '''exp : termino
-           | termino OP_ADD exp
-           | termino OP_SUBTR exp'''
+           | termino aux_exp exp'''
+           
+def p_aux_exp(p):
+    '''aux_exp : OP_ADD
+               | OP_SUBTR'''
 
 ## -- <termino> --
 def p_termino(p):
@@ -276,6 +293,41 @@ def p_error(p):
 def p_empty(p):
     'empty :'
     pass
+
+# ----------- Auxiliar variables ------------ #
+
+directory = None  # Variable that stores the directory of functions
+
+scope = None # Variable that stores the current scope
+current_type = None # Variable that stores the current type of variables to store
+
+# ----------- Neuralgic Points ----------- #
+
+def p_create_funcs_dict(p):
+    'create_funcs_dict : '
+    
+    global scope
+    scope = 'global'
+    
+    global directory
+    directory = Functions_Directory()
+    directory.add_Function(scope, 'void', 0, [])    
+    directory.Table[scope].varsTable.add_Variable(p[-1], 'NameProg', 0)
+
+
+def p_save_var_type(p):
+    'save_var_type : '
+    
+    global current_type    
+    current_type = p[-1]
+    
+
+def p_save_var(p):
+    'save_var : '
+    
+    directory.Table[scope].varsTable.add_Variable(p[-1], current_type, 0)
+
+# ----------- Methods ----------- #
 
 # Return the parser
 parser = yacc.yacc()  
