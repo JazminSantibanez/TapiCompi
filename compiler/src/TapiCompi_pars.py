@@ -98,11 +98,12 @@ def p_tipo_c(p):
 
 # -- <arr> --
 def p_arr(p):
-    'arr : lBRACKET aux_arr rBRACKET'
+    'arr : lBRACKET aux_arr add_var_dimension rBRACKET'
 
 def p_aux_arr(p):
     '''aux_arr : ID
                | CTE_I'''
+    p[0] = p[1] # Pass the token to the parent rule
 
 
 # -- <call_var> --
@@ -297,6 +298,7 @@ directory = None  # Variable that stores the directory of functions
 
 scope = None # Variable that stores the current scope
 current_type = None # Variable that stores the current type of variables to store
+current_var = None # Variable that stores the current variable that is being declared
 
 # ----------- Neuralgic Points ----------- #
 
@@ -322,7 +324,14 @@ def p_save_var_type(p):
 def p_save_var(p):
     'save_var : '
     
-    directory.Table[scope].varsTable.add_Variable(p[-1], current_type, 0)
+    global current_var
+    current_var = p[-1]
+    directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
+    
+def p_add_var_dimension(p):
+    'add_var_dimension : '
+    
+    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
 
 # ----------- Methods ----------- #
 

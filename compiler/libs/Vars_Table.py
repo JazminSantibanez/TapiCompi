@@ -28,13 +28,25 @@ class Var_Info:
         '''
         self.type = type 
         self.dirV = dirV
+        self.numDimensions = 0
+        self.sizeDimensions = []
         
     def  get_Type(self):
         return self.type
 
     def  get_DirV(self):
         return self.dirV
+    
 
+    def get_NumDimensions(self):
+        return self.numDimensions
+    
+    def get_SizeDimensions(self):
+        return self.sizeDimensions
+    
+    def add_Dimension(self, size):
+        self.numDimensions += 1
+        self.sizeDimensions.append(size)
 
 
 class Vars_Table:
@@ -68,13 +80,18 @@ class Vars_Table:
     def check_Existence(self, name):
         return name in self.Table
     
+    def add_Var_Dimension(self, name, size):
+        self.Table[name].add_Dimension(size)
+    
     def print_Table(self, nameFunc):
         print("\n-- Table of variables for", {nameFunc}, ": --")
         
         for key, value in self.Table.items():
             print(" > Name:", key,
                   "Type: ", value.get_Type(),
-                  "DirV: ", value.get_DirV())
+                  "DirV: ", value.get_DirV(),
+                  "NumDimensions: ", value.get_NumDimensions(),
+                  "SizeDimensions: ", value.get_SizeDimensions())
         
         #print(" < End of table")    
     
