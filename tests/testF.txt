@@ -8,7 +8,7 @@ bool t;
 
 func void fun1 ()
 {
-    #
+    var int queso;
 }
 
 func int fun2 (float size)
@@ -16,7 +16,8 @@ func int fun2 (float size)
     #
 }
 
+
 main()
 {
-
+    var bool test;
 }

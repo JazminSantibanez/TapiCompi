@@ -18,7 +18,7 @@ precedence = (
 ## -- <programa> --
 def p_programa(p):
     '''
-    programa : PROGRAM ID create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN lPAREN rPAREN cuerpo
+    programa : PROGRAM ID create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN save_func lPAREN rPAREN cuerpo
     '''
     p[0] = "Success"
     
@@ -324,7 +324,13 @@ def p_save_var(p):
     
     global current_var
     current_var = p[-1]
-    directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
+    
+    # Validate that current variable doesnt exist in the current scope
+    if (directory.Table[scope].varsTable.check_Existence(current_var)):
+        print("Error: Variable '%s' already exists in scope '%s'" % (current_var, scope))
+        p_error(p)
+    else:
+        directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
     
 def p_add_var_dimension(p):
     'add_var_dimension : '
@@ -343,7 +349,11 @@ def p_save_func(p):
     global scope
     scope = p[-1]
     
-    directory.add_Function(scope, function_type, 0)
+    if (directory.check_Existence(scope)):
+        print("Error: Function '%s' already exists" % scope)
+        p_error(p)
+    else:
+        directory.add_Function(scope, function_type, 0)
     
 def p_add_param(p):
     'add_param : '
@@ -352,6 +362,10 @@ def p_add_param(p):
     directory.Table[scope].varsTable.add_Variable(p[-1], current_type, 0)
 
 # ----------- Methods ----------- #
+
+def p_error(p):
+    print("Syntax error in parsing")
+    exit()
 
 # Return the parser
 parser = yacc.yacc()  
