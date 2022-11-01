@@ -19,6 +19,6 @@ func int fun2 (float size)
 
 main()
 {
-    var bool test;
+    var int test;
     test = 3;
 }

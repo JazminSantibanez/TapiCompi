@@ -1,10 +1,9 @@
-from asyncio.windows_events import NULL
-from msilib.schema import Directory
 from collections import deque
 
 from src.ply import *
 from src.TapiCompi_lex import tokens
 
+from libs.CuboSem import *
 from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
 from libs.Quadruple import Quadruple
@@ -21,10 +20,10 @@ function_type = None # Variable that stores the type of function that is being d
 quadruples = [] # List that stores the quadruples
 quad_pointer = 1; # Variable that stores the number of the next quadruple to be generated
 
-s_Operators = deque() # Stack that stores the operators ( +, -, *, /, etc. )
-s_Operands = deque() # Stack that stores the operands
-s_Types = deque() # Stack that stores the types of the operands
-s_Jumps = deque() # Stack that stores the jumps
+stack_Operators = deque() # Stack that stores the operators ( +, -, *, /, etc. )
+stack_Operands = deque() # Stack that stores the operands
+stack_Types = deque() # Stack that stores the types of the operands
+stack_Jumps = deque() # Stack that stores the jumps
 
 
 # ----------- Parsing Rules  ----------- #
@@ -44,20 +43,20 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
+    print('\n')
+    print(f'\n {"Cuadruplos:":^50s}')
+    print(f' {"~"*50}')        
+    global quadruples
+    for quad in quadruples:
+        if quad != None:
+            quad.print()
+    
     global directory
     directory.print_Directory()
     print('\n')
         
     for key in directory.Table:
         directory.Table[key].print_VarsTable()
-    
-    print('\n')
-    print(f'\n {"Cuadruplos:":^70s}')
-    print(f' {"~"*70}')        
-    global quadruples
-    for quad in quadruples:
-        if quad != None:
-            quad.print()
     
 
 def p_aux_prog(p):
@@ -143,6 +142,7 @@ def p_aux_arr(p):
 def p_call_var(p):
     'call_var : ID aux_cv check_var_exists'
     p[0] = p[1] # Pass the token to the parent rule
+    current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
 
 def p_aux_cv(p):
     '''aux_cv : arr aux_cv2
@@ -211,7 +211,7 @@ def p_return(p):
     
 ## -- <asignacion> --
 def p_asignacion(p):
-    'asignacion : call_var OP_ASSIGN h_exp' 
+    'asignacion : call_var push_operand OP_ASSIGN push_operator h_exp quad_assign' 
 
   
 ## -- <leer> --
@@ -301,18 +301,21 @@ def p_termino(p):
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
 def p_factor(p):
     '''factor : lPAREN h_exp rPAREN
-              | CTE_I
-              | CTE_F
-              | call_func
-              | call_var'''
+              | CTE_I type_int push_operand
+              | CTE_F type_float push_operand
+              | call_var push_operand
+              | call_func'''
+    
 
 # Error rule for syntax errors
 def p_error(p):
-    if p:
+    """ if p:
         print("Error de sintaxis en '%s'" % p.value)
     else:
         print("Error de sintaxis en EOF")
-    parser.error = 1
+    parser.error = 1 """
+    print("Syntax error in parsing")
+    exit()
 
 
 def p_empty(p):
@@ -338,7 +341,7 @@ def p_create_funcs_dict(p):
 def p_save_type(p):
     'save_type : '
     
-    global current_type    
+    global current_type 
     current_type = p[-1]
     
 
@@ -390,6 +393,55 @@ def p_check_var_exists(p):
     if (not directory.Table[scope].varsTable.check_Existence(p[-2])):
         print("Error: Variable '%s' does not exist in scope '%s'" % (p[-2], scope))
         p_error(p)
+        
+def p_type_int(p):
+    'type_int : '
+    
+    global current_type
+    current_type = 'int'
+    p[0] = p[-1] # Return the value of the constant
+    
+def p_type_float(p):
+    'type_float : '
+    
+    global current_type
+    current_type = 'float'
+    p[0] = p[-1] # Return the value of the constant
+        
+def p_push_operand(p):
+    'push_operand : '
+    
+    global stack_Operands
+    global stack_Types
+    
+    operand = p[-1]
+    stack_Operands.append(operand)
+    stack_Types.append(current_type)
+    
+def p_push_operator(p):
+    'push_operator : '
+    
+    global stack_Operators
+    stack_Operators.append(p[-1])
+    
+def p_quad_assign(p):
+    'quad_assign : '
+    
+    global quadruples
+    global quad_pointer
+    
+    operator = stack_Operators.pop()
+    oper_Izq = stack_Operands.pop()
+    oper_Der = stack_Operands.pop()
+    
+    type_Izq = stack_Types.pop()
+    type_Der = stack_Types.pop()
+    if (validate_type(operator,type_Izq, type_Der) == -1):
+        print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, type_Izq, type_Der))
+        p_error(p)
+        
+    quadruples.append(Quadruple(operator, oper_Izq, '', oper_Der))
+    quad_pointer += 1
 
 # ----------- Methods ----------- #
 

@@ -18,5 +18,5 @@ class Quadruple:
         self.result = result
         
     def print(self):
-        print(self.operator, self.left, self.right, self.result)
-        #print(f'{self.operator:10} {self.left:10} {self.right:10} {self.result:10}')
+        #print(self.operator, self.left, self.right, self.result)
+        print(f'  {self.operator:6}, {self.left:6}, {self.right:6}, {self.result:6}')
