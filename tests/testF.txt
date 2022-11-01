@@ -20,4 +20,5 @@ func int fun2 (float size)
 main()
 {
     var bool test;
+    test = 3;
 }

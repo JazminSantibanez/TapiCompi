@@ -20,12 +20,13 @@ class Var_Info:
         type (Type) : Type of the variable
         dirV (int) : Virtual direction 
     """
-    def __init__(self, type : Type, dirV : int):
+    def __init__(self, name : str, type : Type, dirV : int):
         '''
         Args:
             type (Type) : Type of the variable
             dirV (int) : Virtual direction
         '''
+        self.name = name
         self.type = type 
         self.dirV = dirV
         self.numDimensions = 0
@@ -69,7 +70,7 @@ class Vars_Table:
             type (Type) : type of the variable
             dirV (int) : virtual direction
         '''
-        self.Table[name] = Var_Info(type, dirV)
+        self.Table[name] = Var_Info(name, type, dirV)
     
     # Returns variable info from the table
     def get_Variable(self, name):
@@ -84,15 +85,15 @@ class Vars_Table:
         self.Table[name].add_Dimension(size)
     
     def print_Table(self, nameFunc):
-        print("\n-- Table of variables for", {nameFunc}, ": --")
+        print(f'\n{"Table of variables of scope: ":>40}{nameFunc:<35}')
+        print(f' |{"Name":^20} | {"Type":^8} | {"dirV":^8} | {"Dims":} |\t{"SizeDimensions"}  ')
+            
+        print(f' |{"-"*70}|')
         
         for key, value in self.Table.items():
-            print(" > Name:", key,
-                  "Type: ", value.get_Type(),
-                  "DirV: ", value.get_DirV(),
-                  "NumDimensions: ", value.get_NumDimensions(),
-                  "SizeDimensions: ", value.get_SizeDimensions())
-        
+            print(f' |{key:^20} | {value.type:8} | {value.dirV:^8} | {value.numDimensions:^4} | {value.sizeDimensions} \t|')
+            
+            
         #print(" < End of table")    
     
 # Tests

@@ -1,9 +1,31 @@
+from asyncio.windows_events import NULL
 from msilib.schema import Directory
+from collections import deque
+
 from src.ply import *
 from src.TapiCompi_lex import tokens
 
 from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
+from libs.Quadruple import Quadruple
+
+# ----------- Auxiliar variables ------------ #
+
+directory = None  # Variable that stores the directory of functions
+
+scope = None # Variable that stores the current scope
+current_type = None # Variable that stores the current type of variables to store
+current_var = None # Variable that stores the current variable that is being declared
+function_type = None # Variable that stores the type of function that is being declared
+
+quadruples = [] # List that stores the quadruples
+quad_pointer = 1; # Variable that stores the number of the next quadruple to be generated
+
+s_Operators = deque() # Stack that stores the operators ( +, -, *, /, etc. )
+s_Operands = deque() # Stack that stores the operands
+s_Types = deque() # Stack that stores the types of the operands
+s_Jumps = deque() # Stack that stores the jumps
+
 
 # ----------- Parsing Rules  ----------- #
 
@@ -24,10 +46,18 @@ def p_programa(p):
     
     global directory
     directory.print_Directory()
-    #directory.Table['global'].print_VarsTable()
-    
+    print('\n')
+        
     for key in directory.Table:
         directory.Table[key].print_VarsTable()
+    
+    print('\n')
+    print(f'\n {"Cuadruplos:":^70s}')
+    print(f' {"~"*70}')        
+    global quadruples
+    for quad in quadruples:
+        if quad != None:
+            quad.print()
     
 
 def p_aux_prog(p):
@@ -111,7 +141,7 @@ def p_aux_arr(p):
 
 # -- <call_var> --
 def p_call_var(p):
-    'call_var : ID aux_cv'
+    'call_var : ID aux_cv check_var_exists'
     p[0] = p[1] # Pass the token to the parent rule
 
 def p_aux_cv(p):
@@ -139,7 +169,7 @@ def p_aux_df2(p):
 
 ## -- <params> --
 def p_params(p):
-    'params : tipo_s save_type call_var add_param aux_params'
+    'params : tipo_s save_type ID aux_cv add_param aux_params'
 
 def p_aux_params(p):
     '''aux_params : SEP_COMMA params
@@ -186,11 +216,11 @@ def p_asignacion(p):
   
 ## -- <leer> --
 def p_leer(p):
-    'leer : READ lPAREN call_var aux_leer rPAREN'
+    'leer : READ lPAREN aux_leer rPAREN'
 
 def p_aux_leer(p):
-    '''aux_leer : SEP_COMMA call_var aux_leer
-                | empty'''
+    '''aux_leer : call_var 
+                | call_var SEP_COMMA aux_leer'''
                 
                 
 ## -- <escribir> --
@@ -289,19 +319,12 @@ def p_empty(p):
     'empty :'
     pass
 
-# ----------- Auxiliar variables ------------ #
-
-directory = None  # Variable that stores the directory of functions
-
-scope = None # Variable that stores the current scope
-current_type = None # Variable that stores the current type of variables to store
-current_var = None # Variable that stores the current variable that is being declared
-function_type = None # Variable that stores the type of function that is being declared
-
 # ----------- Neuralgic Points ----------- #
 
 def p_create_funcs_dict(p):
     'create_funcs_dict : '
+    
+    quadruples.append(None) # Add a None to the list so the quadruples list can be indexed from 1
     
     global scope
     scope = 'global'
@@ -309,7 +332,7 @@ def p_create_funcs_dict(p):
     global directory
     directory = Functions_Directory()
     directory.add_Function(scope, 'void', 0)    
-    directory.Table[scope].varsTable.add_Variable(p[-1], 'NameProg', 0)
+    directory.Table[scope].varsTable.add_Variable(p[-1], 'Program', 0)
 
 
 def p_save_type(p):
@@ -327,7 +350,7 @@ def p_save_var(p):
     
     # Validate that current variable doesnt exist in the current scope
     if (directory.Table[scope].varsTable.check_Existence(current_var)):
-        print("Error: Variable '%s' already exists in scope '%s'" % (current_var, scope))
+        print("Error: Multiple declaration. \n Variable '%s' already exists in scope '%s'" % (current_var, scope))
         p_error(p)
     else:
         directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
@@ -359,13 +382,16 @@ def p_add_param(p):
     'add_param : '
     
     directory.add_Func_Param(scope, current_type)
-    directory.Table[scope].varsTable.add_Variable(p[-1], current_type, 0)
+    directory.Table[scope].varsTable.add_Variable(p[-2], current_type, 0)
+    
+def p_check_var_exists(p):
+    'check_var_exists : '
+    
+    if (not directory.Table[scope].varsTable.check_Existence(p[-2])):
+        print("Error: Variable '%s' does not exist in scope '%s'" % (p[-2], scope))
+        p_error(p)
 
 # ----------- Methods ----------- #
-
-def p_error(p):
-    print("Syntax error in parsing")
-    exit()
 
 # Return the parser
 parser = yacc.yacc()  
