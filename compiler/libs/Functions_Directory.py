@@ -93,14 +93,19 @@ class Functions_Directory:
     
     
     def print_Directory(self):
-        print("\n-- Directory of functions: --")
+        print(f'\n {"Directory of functions":^70s}')
+        print(f' {"="*70}')
         
         for key, value in self.Table.items():
+            print(f'> Name: {key:<15s} Type: {value.type:<10s} DirV: {value.dirInicio:<8} NumParams: {value.numParams}\tParamsType {value.Params}')
+            
+            '''
             print(" > Name:", key,
                   "Type:", value.type,
                   "DirV:", value.dirInicio,
                   "NumParams:", value.numParams,
                   "Params:", value.Params)
+            '''
             
         #print(" < End of directory")
         

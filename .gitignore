@@ -156,3 +156,4 @@ Avances_Zips
 *.zip
 *tab.py
 *.out
+tests/debug.txt

@@ -5,4 +5,5 @@ main()
 {
 	# queso
 	var int a ;
+	print("queso azul");
 }
