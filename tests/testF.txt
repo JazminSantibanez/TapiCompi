@@ -19,6 +19,8 @@ func int fun2 (float size)
 
 main()
 {
-    var int test;
+    var int test, test2;
     test = 3;
+    read(test, test2);
+    print(2, test, 'c', "queso");
 }

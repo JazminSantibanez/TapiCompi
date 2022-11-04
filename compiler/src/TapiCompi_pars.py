@@ -142,8 +142,10 @@ def p_aux_arr(p):
 def p_call_var(p):
     'call_var : ID aux_cv check_var_exists'
     p[0] = p[1] # Pass the token to the parent rule
+    
+    global current_type
     current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
-
+    
 def p_aux_cv(p):
     '''aux_cv : arr aux_cv2
               | empty'''
@@ -219,22 +221,23 @@ def p_leer(p):
     'leer : READ lPAREN aux_leer rPAREN'
 
 def p_aux_leer(p):
-    '''aux_leer : call_var 
-                | call_var SEP_COMMA aux_leer'''
+    '''aux_leer : call_var quad_read
+                | call_var quad_read SEP_COMMA aux_leer'''
                 
                 
 ## -- <escribir> --
 def p_escribir(p):
-    'escribir : PRINT lPAREN aux_escribir aux_escribir2 rPAREN'
-
+    'escribir : PRINT lPAREN aux_escribir rPAREN'
+    
 def p_aux_escribir(p):
-    '''aux_escribir : h_exp
-                    | LETRERO
-                    | CTE_CHAR'''
-                    
+    '''aux_escribir : aux_escribir2 
+                    | aux_escribir2 SEP_COMMA aux_escribir'''
+
 def p_aux_escribir2(p):
-    '''aux_escribir2 : SEP_COMMA aux_escribir aux_escribir2
-                     | empty'''
+    '''aux_escribir2 : h_exp quad_print_exp
+                    | LETRERO quad_print
+                    | CTE_CHAR quad_print'''
+    p[0] = p[1] # Pass the token to the parent rule
         
                     
 ## -- <condicion> --
@@ -293,9 +296,9 @@ def p_aux_exp(p):
 
 ## -- <termino> --
 def p_termino(p):
-    '''termino : factor
-               | factor OP_MULT termino
-               | factor OP_DIV termino'''
+    '''termino : factor 
+               | factor OP_MULT push_operator termino
+               | factor OP_DIV push_operator termino'''
            
 ## -- <factor> --  
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
@@ -309,13 +312,15 @@ def p_factor(p):
 
 # Error rule for syntax errors
 def p_error(p):
-    """ if p:
+    if p == -2:
+        print("Syntax error in parsing, exiting compilation ...")
+        exit()
+    if p:
         print("Error de sintaxis en '%s'" % p.value)
     else:
         print("Error de sintaxis en EOF")
-    parser.error = 1 """
-    print("Syntax error in parsing")
-    exit()
+    parser.error = 1
+    
 
 
 def p_empty(p):
@@ -354,7 +359,7 @@ def p_save_var(p):
     # Validate that current variable doesnt exist in the current scope
     if (directory.Table[scope].varsTable.check_Existence(current_var)):
         print("Error: Multiple declaration. \n Variable '%s' already exists in scope '%s'" % (current_var, scope))
-        p_error(p)
+        p_error(-2)
     else:
         directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
     
@@ -377,7 +382,7 @@ def p_save_func(p):
     
     if (directory.check_Existence(scope)):
         print("Error: Function '%s' already exists" % scope)
-        p_error(p)
+        p_error(-2)
     else:
         directory.add_Function(scope, function_type, 0)
     
@@ -390,9 +395,9 @@ def p_add_param(p):
 def p_check_var_exists(p):
     'check_var_exists : '
     
-    if (not directory.Table[scope].varsTable.check_Existence(p[-2])):
-        print("Error: Variable '%s' does not exist in scope '%s'" % (p[-2], scope))
-        p_error(p)
+    if (not directory.Table[scope].varsTable.check_Existence(p[-2]) and not directory.Table['global'].varsTable.check_Existence(p[-2])):
+        print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (p[-2], scope))
+        p_error(-2)
         
 def p_type_int(p):
     'type_int : '
@@ -438,11 +443,64 @@ def p_quad_assign(p):
     type_Der = stack_Types.pop()
     if (validate_type(operator,type_Izq, type_Der) == -1):
         print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, type_Izq, type_Der))
-        p_error(p)
+        p_error(-2)
         
     quadruples.append(Quadruple(operator, oper_Izq, '', oper_Der))
     quad_pointer += 1
+    
+def p_quad_read(p):
+    'quad_read : '
+    
+    global quadruples
+    global quad_pointer
+    
+    quadruples.append(Quadruple('READ', '', '', p[-1]))
+    quad_pointer += 1
 
+def p_quad_print(p):
+    'quad_print : '
+    
+    global quadruples
+    global quad_pointer
+    
+    quadruples.append(Quadruple('PRINT', '', '', p[-1]))
+    quad_pointer += 1
+    
+def p_quad_print_exp(p):
+    'quad_print_exp : '
+    
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    global quad_pointer
+    
+    stack_Types.pop() # Pop the type of the expression
+    
+    quadruples.append(Quadruple('PRINT', '', '', stack_Operands.pop()))
+    quad_pointer += 1
+    
+    # TO DO: If the operand was a temporal, free the used space.
+    
+    
+""" def p_quad_add_substr(p):
+    'quad_add_substr : '
+    
+    global stack_Operands
+    global stack_Types
+    global stack_Operators
+    global quadruples
+    global quad_pointer
+    
+    if (stack_Operands[-1] == '+' | stack_Operands[-1] == '-'): # Check if top of stack is add or subtract pending
+        # Take out operands and their types
+        right_operand = stack_Operands.pop()
+        right_type = stack_Types.pop()
+        left_operand = stack_Operands.pop()
+        left_type = stack_Types.pop()
+        
+        operator = stack_Operators.pop()
+        
+        # Check if types are valid """
 # ----------- Methods ----------- #
 
 # Return the parser
