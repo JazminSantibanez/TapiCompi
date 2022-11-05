@@ -4,6 +4,6 @@ program quesito:
 main()
 {
 	# queso
-	var int A, B, C;
-	print(A + B * C, "hola", C + 4 * 2);
+	var int A, B, C, D, H, I, J, K, M;
+	print( A * (B + C / D * (H+I) - J * K + M) );
 }

@@ -307,7 +307,7 @@ def p_termino(p):
 ## -- <factor> --  
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
 def p_factor(p):
-    '''factor : lPAREN h_exp rPAREN
+    '''factor : lPAREN false_bottom_start h_exp rPAREN false_bottom_end
               | CTE_I type_int push_operand
               | CTE_F type_float push_operand
               | call_var push_operand
@@ -555,7 +555,22 @@ def p_quad_mult_div(p):
             stack_Operands.append(result)
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
-        
+
+def p_false_bottom_start(p):
+    'false_bottom_start : '
+    
+    global stack_Operands
+    stack_Operators.append('(')
+    
+def p_false_bottom_end(p):
+    'false_bottom_end : '
+    
+    if (len(stack_Operators) > 0 and stack_Operators[-1] == '('):
+        stack_Operators.pop()
+    else:
+        print("Error: Parenthesis mismatch")
+        p_error(-2) 
+
 # ----------- Methods ----------- #
 
 # Return the parser
