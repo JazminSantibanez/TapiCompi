@@ -4,6 +4,6 @@ program quesito:
 main()
 {
 	# queso
-	var int a ;
-	print("queso azul");
+	var int A, B, C;
+	print(A + B * C, "hola", C + 4 * 2);
 }

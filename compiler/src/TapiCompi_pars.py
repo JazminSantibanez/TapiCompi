@@ -3,10 +3,12 @@ from collections import deque
 from src.ply import *
 from src.TapiCompi_lex import tokens
 
-from libs.CuboSem import *
+import libs.CuboSem as CuboSem
+#from libs.CuboSem import *
 from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
 from libs.Quadruple import Quadruple
+from libs.Address_Manager import Address_Manager
 
 # ----------- Auxiliar variables ------------ #
 
@@ -25,6 +27,7 @@ stack_Operands = deque() # Stack that stores the operands
 stack_Types = deque() # Stack that stores the types of the operands
 stack_Jumps = deque() # Stack that stores the jumps
 
+Addr_Manager = Address_Manager()
 
 # ----------- Parsing Rules  ----------- #
 
@@ -43,20 +46,19 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    print('\n')
-    print(f'\n {"Cuadruplos:":^50s}')
+    print(f' {"Cuadruplos:":^50s}')
     print(f' {"~"*50}')        
     global quadruples
     for quad in quadruples:
         if quad != None:
             quad.print()
     
-    global directory
+    """ global directory
     directory.print_Directory()
     print('\n')
         
     for key in directory.Table:
-        directory.Table[key].print_VarsTable()
+        directory.Table[key].print_VarsTable() """
     
 
 def p_aux_prog(p):
@@ -158,6 +160,8 @@ def p_aux_cv2(p):
 # -- <dec_func> --
 def p_dec_func(p):
     'dec_func : FUNC aux_df save_func_type ID save_func lPAREN aux_df2 rPAREN cuerpo'
+    # Reset variables address
+    Addr_Manager.reset_local()
     
 def p_aux_df(p):
     '''aux_df : VOID
@@ -287,18 +291,18 @@ def p_aux_s_exp(p):
 
 ## -- <exp> --
 def p_exp(p):
-    '''exp : termino
-           | termino aux_exp exp'''
+    '''exp : termino quad_add_substr
+           | termino quad_add_substr aux_exp exp'''
            
 def p_aux_exp(p):
-    '''aux_exp : OP_ADD
-               | OP_SUBTR'''
+    '''aux_exp : OP_ADD push_operator
+               | OP_SUBTR push_operator'''
 
 ## -- <termino> --
 def p_termino(p):
-    '''termino : factor 
-               | factor OP_MULT push_operator termino
-               | factor OP_DIV push_operator termino'''
+    '''termino : factor quad_mult_div
+               | factor quad_mult_div OP_MULT push_operator termino
+               | factor quad_mult_div OP_DIV push_operator termino'''
            
 ## -- <factor> --  
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
@@ -320,7 +324,6 @@ def p_error(p):
     else:
         print("Error de sintaxis en EOF")
     parser.error = 1
-    
 
 
 def p_empty(p):
@@ -441,7 +444,7 @@ def p_quad_assign(p):
     
     type_Izq = stack_Types.pop()
     type_Der = stack_Types.pop()
-    if (validate_type(operator,type_Izq, type_Der) == -1):
+    if (CuboSem.validate_type(operator,type_Izq, type_Der) == -1):
         print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, type_Izq, type_Der))
         p_error(-2)
         
@@ -482,7 +485,7 @@ def p_quad_print_exp(p):
     # TO DO: If the operand was a temporal, free the used space.
     
     
-""" def p_quad_add_substr(p):
+def p_quad_add_substr(p):
     'quad_add_substr : '
     
     global stack_Operands
@@ -490,17 +493,69 @@ def p_quad_print_exp(p):
     global stack_Operators
     global quadruples
     global quad_pointer
+            
+    if (len(stack_Operators) > 0 and (stack_Operators[-1] == '+' or stack_Operators[-1] == '-')):
+            print("quad_add_substr")
+            # Take out operands and their types
+            right_operand = stack_Operands.pop()
+            right_type = stack_Types.pop()
+            left_operand = stack_Operands.pop()
+            left_type = stack_Types.pop()
+            
+            operator = stack_Operators.pop()
+            
+            # Check if types are valid
+            result_type = CuboSem.validate_type(operator, left_type, right_type)
+            
+            if (result_type == -1):
+                print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, left_type, right_type))
+                p_error(-2)
+                
+            #If theres no error: Create a temporal and add the quadruple
+            result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            
+            # Create quadruple
+            quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            stack_Operands.append(result)
+            stack_Types.append(result_type)
+            # TO DO: IF the operands were temporals, free the used space.
+            
+            
+def p_quad_mult_div(p):
+    'quad_mult_div : '
     
-    if (stack_Operands[-1] == '+' | stack_Operands[-1] == '-'): # Check if top of stack is add or subtract pending
-        # Take out operands and their types
-        right_operand = stack_Operands.pop()
-        right_type = stack_Types.pop()
-        left_operand = stack_Operands.pop()
-        left_type = stack_Types.pop()
+    global stack_Operands
+    global stack_Types
+    global stack_Operators
+    global quadruples
+    global quad_pointer
+            
+    if (len(stack_Operators) > 0 and (stack_Operators[-1] == '*' or stack_Operators[-1] == '/')):
+            print("quad_mult_div")
+            # Take out operands and their types
+            right_operand = stack_Operands.pop()
+            right_type = stack_Types.pop()
+            left_operand = stack_Operands.pop()
+            left_type = stack_Types.pop()
+            
+            operator = stack_Operators.pop()
+            
+            # Check if types are valid
+            result_type = CuboSem.validate_type(operator, left_type, right_type)
+            
+            if (result_type == -1):
+                print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, left_type, right_type))
+                p_error(-2)
+                
+            #If theres no error: Create a temporal and add the quadruple
+            result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            
+            # Create quadruple
+            quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            stack_Operands.append(result)
+            stack_Types.append(result_type)
+            # TO DO: IF the operands were temporals, free the used space.
         
-        operator = stack_Operators.pop()
-        
-        # Check if types are valid """
 # ----------- Methods ----------- #
 
 # Return the parser

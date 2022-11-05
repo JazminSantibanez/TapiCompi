@@ -22,5 +22,5 @@ main()
     var int test, test2;
     test = 3;
     read(test, test2);
-    print(2, test, 'c', "queso");
+    print(2 + 5, test, 'c', "queso");
 }

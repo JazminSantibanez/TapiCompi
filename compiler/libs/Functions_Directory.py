@@ -1,5 +1,5 @@
 from libs.Vars_Table import Vars_Table
-from libs.enums import Type
+from libs.utils.enums import Type
 # Path: TapiCompi.compiler.libs
 
 

@@ -9,7 +9,7 @@
 
 # Path: TapiCompi.compiler.libs
 
-from libs.enums import Type
+from libs.utils.enums import Type
 
 
 class Var_Info:
