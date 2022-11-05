@@ -1,7 +1,6 @@
+import sys
 from src.TapiCompi_pars import parser
 from src.TapiCompi_lex import Tokenize
-import sys
-
 
 def run(code):
     #Tokenize(code)

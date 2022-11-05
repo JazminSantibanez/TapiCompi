@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-# Do: Change types for enums
+# To Do: Change types for enums
 
 
 dict_MultDiv = {

@@ -4,6 +4,6 @@ program quesito:
 main()
 {
 	# queso
-	var int a ;
-	print("queso azul");
+	var int A, B, C, D, H, I, J, K, M;
+	print( A * (B + C / D * (H+I) - J * K + M) );
 }
