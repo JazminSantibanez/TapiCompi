@@ -30,3 +30,10 @@ Correcion de gramática en expresiones.
 Funciona sin warnings.
 
 Se realizaron pruebas y compila exitosamente.
+
+# Avance 4
+Declaración de variables y funciones funciona correctamente (detecta doble declaracion).
+
+Se generan cuadruplos correctos para los estatutos secuenciales: asignacion, leer y escribir.
+
+Se generan cuadruplos correctos para expresiones aritmeticas básicas (sumar, restar, multiplicar y dividir), incluyendo paréntesis.

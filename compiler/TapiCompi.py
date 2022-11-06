@@ -3,7 +3,7 @@ from src.TapiCompi_pars import parser
 from src.TapiCompi_lex import Tokenize
 
 def run(code):
-    #Tokenize(code)
+    Tokenize(code)
     try:
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
@@ -17,6 +17,7 @@ def run(code):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
+        print(sys.argv[1])
         data = open(sys.argv[1]).read()
         run(data)
     else:

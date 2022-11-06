@@ -84,6 +84,8 @@ def p_aux_cuerpo(p):
 def p_bloque(p):
     '''bloque : estatuto bloque
                 | empty'''
+                
+    print('bloque')
 
 ## -- <dec_var> --
 def p_dec_var(p):
@@ -196,8 +198,11 @@ def p_aux_cf2(p):
              
   
 ## -- <estatuto> --
-def p_estatus(p):
+def p_estatuto(p):
     '''estatuto : aux_estatuto SEP_SEMICOLON
+                | condicion
+                | ciclo_while
+                | ciclo_for
                 | COMENTARIO'''
 
 def p_aux_estatuto(p):
@@ -205,9 +210,6 @@ def p_aux_estatuto(p):
                     | call_func
                     | leer
                     | escribir
-                    | condicion
-                    | ciclo_while
-                    | ciclo_for
                     | return'''
 
 ## -- <return> --
@@ -246,10 +248,10 @@ def p_aux_escribir2(p):
                     
 ## -- <condicion> --
 def p_condicion(p):
-    'condicion : IF lPAREN h_exp rPAREN bloque aux_condicion'
+    'condicion : IF lPAREN h_exp rPAREN lBRACE quad_if_jump_false bloque rBRACE aux_condicion quad_if_end'
 
 def p_aux_condicion(p):
-    '''aux_condicion : ELSE bloque
+    '''aux_condicion : quad_if_else ELSE lBRACE bloque rBRACE
                      | empty'''
 
 
@@ -320,7 +322,7 @@ def p_error(p):
         print("Syntax error in parsing, exiting compilation ...")
         exit()
     if p:
-        print("Error de sintaxis en '%s'" % p.value)
+        print("Error de sintaxis en '%s'" % p.value, "en la linea", p.lineno)
     else:
         print("Error de sintaxis en EOF")
     parser.error = 1
@@ -516,6 +518,7 @@ def p_quad_add_substr(p):
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
             stack_Operands.append(result)
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
@@ -552,6 +555,7 @@ def p_quad_mult_div(p):
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
             stack_Operands.append(result)
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
@@ -569,7 +573,54 @@ def p_false_bottom_end(p):
         stack_Operators.pop()
     else:
         print("Error: Parenthesis mismatch")
-        p_error(-2) 
+        p_error(-2)
+        
+def p_quad_if_jump_false(p):
+    'quad_if_jump_false : '
+    
+    
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    global quad_pointer
+    global stack_Jumps
+    
+    result = stack_Operands.pop()
+    tipo_cond = stack_Types.pop()
+    
+    if (tipo_cond != 'bool'):
+        print("Error: Result for condition must be boolean")
+        p_error(-2)
+        
+    quadruples.append(Quadruple('GOTOF', result, '', '')) # Quad to jump to the false section
+    quad_pointer += 1
+    stack_Jumps.append(quad_pointer - 1)
+
+def p_quad_if_else(p):
+    'quad_if_else : '
+    
+    global quadruples
+    global quad_pointer
+    global stack_Jumps
+    
+    quadruples.append(Quadruple('GOTO', '', '', ''))
+    quad_pointer += 1
+    
+    quad_incomplete = stack_Jumps.pop() # Get the incomplete quad, the one after the evaluation of the expression
+    stack_Jumps.append(quad_pointer - 1) # Crumb to right before the false section starts (in case its true, it will jump to the end of the if, skipping this part)
+    quadruples[quad_incomplete].set_Result(quad_pointer) # Add where the false section starts
+    
+def p_quad_if_end(p):
+    'quad_if_end : '
+    
+    
+    global stack_Jumps
+    global quadruples
+    global quad_pointer
+    
+    quad_incomplete = stack_Jumps.pop() 
+    quadruples[quad_incomplete].set_Result(quad_pointer)
+    
 
 # ----------- Methods ----------- #
 
