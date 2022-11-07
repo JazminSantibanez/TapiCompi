@@ -4,12 +4,18 @@ program quesito:
 main()
 {
 	var
-	int A, B, C, D;
+	int A, B, C, D, E, F, G, H, I, J, K, L, M, P;
 	bool test;
 
-	if (test)
+	#A = B * (C / (D + E * F) * G + H - I (J + K) - M ) + P;
+
+	if (A + B > C * D)
 	{
 		A = B + C;
 	}
-	D = A * B - C;
+	else
+	{
+		B = C - D;
+	}
+	D = A + B;
 }
