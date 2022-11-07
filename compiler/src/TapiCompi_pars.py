@@ -9,6 +9,7 @@ from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
 from libs.Quadruple import Quadruple
 from libs.Address_Manager import Address_Manager
+import pandas as pd
 
 # ----------- Auxiliar variables ------------ #
 
@@ -47,11 +48,12 @@ def p_programa(p):
     p[0] = "Success"
     
     print(f' {"Cuadruplos:":^50s}')
-    print(f' {"~"*50}')        
+    print(f' {"*"*50}')        
     global quadruples
-    for quad in quadruples:
-        if quad != None:
-            quad.print()
+    lst = [q.to_list() for q in quadruples if q != None]
+    df = pd.DataFrame(lst, columns=['Operator', 'Left O.', 'Right O.', 'Result'])
+    df.index += 1
+    print(df)
     
     """ global directory
     directory.print_Directory()
