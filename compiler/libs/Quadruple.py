@@ -20,3 +20,6 @@ class Quadruple:
     def print(self):
         #print(self.operator, self.left, self.right, self.result)
         print(f'  {self.operator:6}, {self.left:6}, {self.right:6}, {self.result:6}')
+        
+    def to_list(self):
+        return [self.operator, self.left, self.right, self.result]

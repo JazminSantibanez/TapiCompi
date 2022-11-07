@@ -9,6 +9,7 @@ from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
 from libs.Quadruple import Quadruple
 from libs.Address_Manager import Address_Manager
+import pandas as pd
 
 # ----------- Auxiliar variables ------------ #
 
@@ -47,11 +48,12 @@ def p_programa(p):
     p[0] = "Success"
     
     print(f' {"Cuadruplos:":^50s}')
-    print(f' {"~"*50}')        
+    print(f' {"*"*50}')        
     global quadruples
-    for quad in quadruples:
-        if quad != None:
-            quad.print()
+    lst = [q.to_list() for q in quadruples if q != None]
+    df = pd.DataFrame(lst, columns=['Operator', 'Left O.', 'Right O.', 'Result'])
+    df.index += 1
+    print(df)
     
     """ global directory
     directory.print_Directory()
@@ -84,6 +86,8 @@ def p_aux_cuerpo(p):
 def p_bloque(p):
     '''bloque : estatuto bloque
                 | empty'''
+                
+    print('bloque')
 
 ## -- <dec_var> --
 def p_dec_var(p):
@@ -196,8 +200,11 @@ def p_aux_cf2(p):
              
   
 ## -- <estatuto> --
-def p_estatus(p):
+def p_estatuto(p):
     '''estatuto : aux_estatuto SEP_SEMICOLON
+                | condicion
+                | ciclo_while
+                | ciclo_for
                 | COMENTARIO'''
 
 def p_aux_estatuto(p):
@@ -205,9 +212,6 @@ def p_aux_estatuto(p):
                     | call_func
                     | leer
                     | escribir
-                    | condicion
-                    | ciclo_while
-                    | ciclo_for
                     | return'''
 
 ## -- <return> --
@@ -246,10 +250,10 @@ def p_aux_escribir2(p):
                     
 ## -- <condicion> --
 def p_condicion(p):
-    'condicion : IF lPAREN h_exp rPAREN bloque aux_condicion'
+    'condicion : IF lPAREN h_exp rPAREN lBRACE quad_if_jump_false bloque rBRACE aux_condicion quad_if_end'
 
 def p_aux_condicion(p):
-    '''aux_condicion : ELSE bloque
+    '''aux_condicion : quad_if_else ELSE lBRACE bloque rBRACE
                      | empty'''
 
 
@@ -269,17 +273,18 @@ def p_aux_ciclofor(p):
 
 ## -- <h_exp> --
 def p_h_exp(p):
-    '''h_exp : s_exp
-             | s_exp aux_h_exp h_exp'''
+    '''h_exp : s_exp quad_and_or
+             | s_exp quad_and_or aux_h_exp push_operator h_exp'''
              
 def p_aux_h_exp(p):
     '''aux_h_exp : OP_AND
                  | OP_OR'''
+    p[0] = p[1] # Pass the token to the parent rule
 
 ## -- <s_exp> --
 def p_s_exp(p):
-    '''s_exp : exp
-             | exp aux_s_exp s_exp'''
+    '''s_exp : exp quad_compare
+             | exp quad_compare aux_s_exp push_operator s_exp'''
 
 def p_aux_s_exp(p):
     '''aux_s_exp : OP_EQ
@@ -288,6 +293,7 @@ def p_aux_s_exp(p):
                  | OP_LT
                  | OP_GTE
                  | OP_LTE'''
+    p[0] = p[1] # Pass the token to the parent rule
 
 ## -- <exp> --
 def p_exp(p):
@@ -320,7 +326,7 @@ def p_error(p):
         print("Syntax error in parsing, exiting compilation ...")
         exit()
     if p:
-        print("Error de sintaxis en '%s'" % p.value)
+        print("Error de sintaxis en '%s'" % p.value, "en la linea", p.lineno)
     else:
         print("Error de sintaxis en EOF")
     parser.error = 1
@@ -516,6 +522,7 @@ def p_quad_add_substr(p):
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
             stack_Operands.append(result)
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
@@ -552,10 +559,87 @@ def p_quad_mult_div(p):
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
             stack_Operands.append(result)
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
 
+def p_quad_compare(p):
+    'quad_compare : '
+    
+    global stack_Operands
+    global stack_Types
+    global stack_Operators
+    global quadruples
+    global quad_pointer
+            
+    if (len(stack_Operators) > 0 and (
+        stack_Operators[-1] == '>' or stack_Operators[-1] == '<'
+        or stack_Operators[-1] == '>=' or stack_Operators[-1] == '<='
+        or stack_Operators[-1] == '==' or stack_Operators[-1] == '!=')):
+            print("quad_add_substr")
+            # Take out operands and their types
+            right_operand = stack_Operands.pop()
+            right_type = stack_Types.pop()
+            left_operand = stack_Operands.pop()
+            left_type = stack_Types.pop()
+            
+            operator = stack_Operators.pop()
+            
+            # Check if types are valid
+            result_type = CuboSem.validate_type(operator, left_type, right_type)
+            
+            if (result_type == -1):
+                print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, left_type, right_type))
+                p_error(-2)
+                
+            #If theres no error: Create a temporal and add the quadruple
+            result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            
+            # Create quadruple
+            quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
+            stack_Operands.append(result)
+            stack_Types.append(result_type)
+            # TO DO: IF the operands were temporals, free the used space.
+
+def p_quad_and_or(p):
+    'quad_and_or : '
+    
+    global stack_Operands
+    global stack_Types
+    global stack_Operators
+    global quadruples
+    global quad_pointer
+            
+    if (len(stack_Operators) > 0 and (stack_Operators[-1] == '&' or stack_Operators[-1] == '|')):
+            print("quad_add_substr")
+            # Take out operands and their types
+            right_operand = stack_Operands.pop()
+            right_type = stack_Types.pop()
+            left_operand = stack_Operands.pop()
+            left_type = stack_Types.pop()
+            
+            operator = stack_Operators.pop()
+            
+            # Check if types are valid
+            result_type = CuboSem.validate_type(operator, left_type, right_type)
+            
+            if (result_type == -1):
+                print("Error: Operation '%s' with mismatched types '%s' and '%s'" % (operator, left_type, right_type))
+                p_error(-2)
+                
+            #If theres no error: Create a temporal and add the quadruple
+            result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            
+            # Create quadruple
+            quadruples.append(Quadruple(operator, left_operand, right_operand, result))
+            quad_pointer += 1
+            stack_Operands.append(result)
+            stack_Types.append(result_type)
+            # TO DO: IF the operands were temporals, free the used space.
+    
+    
 def p_false_bottom_start(p):
     'false_bottom_start : '
     
@@ -569,7 +653,54 @@ def p_false_bottom_end(p):
         stack_Operators.pop()
     else:
         print("Error: Parenthesis mismatch")
-        p_error(-2) 
+        p_error(-2)
+        
+def p_quad_if_jump_false(p):
+    'quad_if_jump_false : '
+    
+    
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    global quad_pointer
+    global stack_Jumps
+    
+    result = stack_Operands.pop()
+    tipo_cond = stack_Types.pop()
+    
+    if (tipo_cond != 'bool'):
+        print("Error: Result for condition must be boolean")
+        p_error(-2)
+        
+    quadruples.append(Quadruple('GOTOF', result, '', '')) # Quad to jump to the false section
+    quad_pointer += 1
+    stack_Jumps.append(quad_pointer - 1)
+
+def p_quad_if_else(p):
+    'quad_if_else : '
+    
+    global quadruples
+    global quad_pointer
+    global stack_Jumps
+    
+    quadruples.append(Quadruple('GOTO', '', '', ''))
+    quad_pointer += 1
+    
+    quad_incomplete = stack_Jumps.pop() # Get the incomplete quad, the one after the evaluation of the expression
+    stack_Jumps.append(quad_pointer - 1) # Crumb to right before the false section starts (in case its true, it will jump to the end of the if, skipping this part)
+    quadruples[quad_incomplete].set_Result(quad_pointer) # Add where the false section starts
+    
+def p_quad_if_end(p):
+    'quad_if_end : '
+    
+    
+    global stack_Jumps
+    global quadruples
+    global quad_pointer
+    
+    quad_incomplete = stack_Jumps.pop() 
+    quadruples[quad_incomplete].set_Result(quad_pointer)
+    
 
 # ----------- Methods ----------- #
 

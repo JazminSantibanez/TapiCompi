@@ -1,12 +1,21 @@
 # queso
 program quesito:
 
-var 
-int a, b, c[1], d[2][5] ;
-float ab, bb;
-bool t;
-
 main()
 {
-	#a
+	var
+	int A, B, C, D, E, F, G, H, I, J, K, L, M, P;
+	bool test;
+
+	#A = B * (C / (D + E * F) * G + H - I (J + K) - M ) + P;
+
+	if (A + B > C * D)
+	{
+		A = B + C;
+	}
+	else
+	{
+		B = C - D;
+	}
+	D = A + B;
 }
