@@ -15,7 +15,7 @@ main()
 	}
 	else
 	{
-		B = C - D;
+		B = C - D
 	}
 	D = A + B;
 }

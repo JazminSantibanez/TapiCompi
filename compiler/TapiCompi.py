@@ -3,7 +3,7 @@ from src.TapiCompi_pars import parser
 from src.TapiCompi_lex import Tokenize
 
 def run(code):
-    Tokenize(code)
+    #Tokenize(code)
     try:
         #Tokenize(data)
         if(parser.parse(data) == "Success"):

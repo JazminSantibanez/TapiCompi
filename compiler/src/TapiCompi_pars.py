@@ -86,8 +86,6 @@ def p_aux_cuerpo(p):
 def p_bloque(p):
     '''bloque : estatuto bloque
                 | empty'''
-                
-    print('bloque')
 
 ## -- <dec_var> --
 def p_dec_var(p):
@@ -319,19 +317,6 @@ def p_factor(p):
               | call_var push_operand
               | call_func'''
     
-
-# Error rule for syntax errors
-def p_error(p):
-    if p == -2:
-        print("Syntax error in parsing, exiting compilation ...")
-        exit()
-    if p:
-        print("Error de sintaxis en '%s'" % p.value, "en la linea", p.lineno)
-    else:
-        print("Error de sintaxis en EOF")
-    parser.error = 1
-
-
 def p_empty(p):
     'empty :'
     pass
@@ -501,7 +486,6 @@ def p_quad_add_substr(p):
     global quad_pointer
             
     if (len(stack_Operators) > 0 and (stack_Operators[-1] == '+' or stack_Operators[-1] == '-')):
-            print("quad_add_substr")
             # Take out operands and their types
             right_operand = stack_Operands.pop()
             right_type = stack_Types.pop()
@@ -538,7 +522,6 @@ def p_quad_mult_div(p):
     global quad_pointer
             
     if (len(stack_Operators) > 0 and (stack_Operators[-1] == '*' or stack_Operators[-1] == '/')):
-            print("quad_mult_div")
             # Take out operands and their types
             right_operand = stack_Operands.pop()
             right_type = stack_Types.pop()
@@ -577,7 +560,6 @@ def p_quad_compare(p):
         stack_Operators[-1] == '>' or stack_Operators[-1] == '<'
         or stack_Operators[-1] == '>=' or stack_Operators[-1] == '<='
         or stack_Operators[-1] == '==' or stack_Operators[-1] == '!=')):
-            print("quad_add_substr")
             # Take out operands and their types
             right_operand = stack_Operands.pop()
             right_type = stack_Types.pop()
@@ -613,7 +595,6 @@ def p_quad_and_or(p):
     global quad_pointer
             
     if (len(stack_Operators) > 0 and (stack_Operators[-1] == '&' or stack_Operators[-1] == '|')):
-            print("quad_add_substr")
             # Take out operands and their types
             right_operand = stack_Operands.pop()
             right_type = stack_Types.pop()
@@ -703,6 +684,23 @@ def p_quad_if_end(p):
     
 
 # ----------- Methods ----------- #
+# From PLY documentation
+# Rule to track line numbers
+def t_newline(t):
+     r'\n+'
+     t.lexer.lineno += len(t.value)
+
+# Error rule for syntax errors
+def p_error(p):
+    if p == -2:
+        print("Syntax error in parsing, exiting compilation ...")
+        exit()
+    if p:
+        print("Error de sintaxis antes de '%s'" % p.value, "en la linea", p.lineno)
+    else:
+        print("Error de sintaxis en EOF")
+    parser.error = 1
+
 
 # Return the parser
 parser = yacc.yacc()  
