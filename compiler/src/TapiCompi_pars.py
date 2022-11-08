@@ -199,18 +199,15 @@ def p_aux_cf2(p):
   
 ## -- <estatuto> --
 def p_estatuto(p):
-    '''estatuto : aux_estatuto SEP_SEMICOLON
+    '''estatuto : asignacion
+                | call_func
+                | leer
+                | escribir
+                | return
                 | condicion
                 | ciclo_while
                 | ciclo_for
                 | COMENTARIO'''
-
-def p_aux_estatuto(p):
-    '''aux_estatuto : asignacion
-                    | call_func
-                    | leer
-                    | escribir
-                    | return'''
 
 ## -- <return> --
 def p_return(p):
@@ -257,7 +254,7 @@ def p_aux_condicion(p):
 
 ## -- <ciclo_while> --
 def p_ciclo_while(p):
-    'ciclo_while : WHILE lPAREN h_exp rPAREN bloque'
+    'ciclo_while : WHILE quad_while_exp lPAREN h_exp rPAREN quad_while_false lBRACE bloque rBRACE quad_while_repeat'
 
 
 ## -- <ciclo_for> --
@@ -680,6 +677,48 @@ def p_quad_if_end(p):
     global quad_pointer
     
     quad_incomplete = stack_Jumps.pop() 
+    quadruples[quad_incomplete].set_Result(quad_pointer)
+    
+def p_quad_while_exp(p):
+    'quad_while_exp : '
+    
+    global stack_Jumps
+    global quad_pointer
+    
+    stack_Jumps.append(quad_pointer)
+    
+def p_quad_while_false(p):
+    'quad_while_false : '
+    
+    global stack_Jumps
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    global quad_pointer
+    
+    result_type = stack_Types.pop()
+    if (result_type != 'bool'):
+        print("Error: Result for condition must be boolean")
+        p_error(-2)
+        
+    result = stack_Operands.pop()
+    quadruples.append(Quadruple('GOTOF', result, '', ''))
+    quad_pointer += 1
+    
+    stack_Jumps.append(quad_pointer - 1)
+    
+def p_quad_while_repeat(p):
+    'quad_while_repeat : '
+    
+    global stack_Jumps
+    global quadruples
+    global quad_pointer
+    
+    quad_incomplete = stack_Jumps.pop()
+    quad_return = stack_Jumps.pop()
+    quadruples.append(Quadruple('GOTO', '', '', quad_return))
+    quad_pointer += 1
+    
     quadruples[quad_incomplete].set_Result(quad_pointer)
     
 
