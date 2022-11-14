@@ -43,7 +43,7 @@ precedence = (
 ## -- <programa> --
 def p_programa(p):
     '''
-    programa : PROGRAM ID create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN save_func lPAREN rPAREN cuerpo
+    programa : PROGRAM ID n_create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN n_save_func lPAREN rPAREN cuerpo
     '''
     p[0] = "Success"
     
@@ -55,12 +55,13 @@ def p_programa(p):
     df.index += 1
     print(df)
     
-    """ global directory
+    global directory
     directory.print_Directory()
     print('\n')
         
     for key in directory.Table:
-        directory.Table[key].print_VarsTable() """
+        if key is not None:
+            directory.Table[key].print_VarsTable() 
     
 
 def p_aux_prog(p):
@@ -92,8 +93,8 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    '''aux_dv : aux_dv2 save_type aux_dv3 SEP_SEMICOLON
-                | aux_dv2 save_type aux_dv3 SEP_SEMICOLON aux_dv
+    '''aux_dv : aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON
+                | aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON aux_dv
     '''
     
 def p_aux_dv2 (p):
@@ -102,7 +103,7 @@ def p_aux_dv2 (p):
     p[0] = p[1] # Pass the token to the parent rule
     
 def p_aux_dv3(p):
-    'aux_dv3 : ID save_var aux_dv4 aux_dv6'
+    'aux_dv3 : ID n_save_var aux_dv4 aux_dv6'
 
 def p_aux_dv4(p):
     '''aux_dv4 : arr aux_dv5
@@ -134,7 +135,7 @@ def p_tipo_c(p):
 
 # -- <arr> --
 def p_arr(p):
-    'arr : lBRACKET aux_arr add_var_dimension rBRACKET'
+    'arr : lBRACKET aux_arr n_add_var_dimension rBRACKET'
 
 def p_aux_arr(p):
     '''aux_arr : ID
@@ -144,7 +145,7 @@ def p_aux_arr(p):
 
 # -- <call_var> --
 def p_call_var(p):
-    'call_var : ID aux_cv check_var_exists'
+    'call_var : ID aux_cv n_check_var_exists'
     p[0] = p[1] # Pass the token to the parent rule
     
     global current_type
@@ -161,7 +162,7 @@ def p_aux_cv2(p):
 
 # -- <dec_func> --
 def p_dec_func(p):
-    'dec_func : FUNC aux_df save_func_type ID save_func lPAREN aux_df2 rPAREN cuerpo'
+    'dec_func : FUNC aux_df n_save_func_type ID n_save_func lPAREN aux_df2 rPAREN cuerpo'
     # Reset variables address
     Addr_Manager.reset_local()
     
@@ -177,7 +178,7 @@ def p_aux_df2(p):
 
 ## -- <params> --
 def p_params(p):
-    'params : tipo_s save_type ID aux_cv add_param aux_params'
+    'params : tipo_s n_save_type ID aux_cv n_add_param aux_params'
 
 def p_aux_params(p):
     '''aux_params : SEP_COMMA params
@@ -199,18 +200,16 @@ def p_aux_cf2(p):
   
 ## -- <estatuto> --
 def p_estatuto(p):
-    '''estatuto : aux_estatuto SEP_SEMICOLON
+    '''estatuto : asignacion
+                | call_func
+                | leer
+                | escribir
+                | return
                 | condicion
                 | ciclo_while
+                | ciclo_do_while
                 | ciclo_for
                 | COMENTARIO'''
-
-def p_aux_estatuto(p):
-    '''aux_estatuto : asignacion
-                    | call_func
-                    | leer
-                    | escribir
-                    | return'''
 
 ## -- <return> --
 def p_return(p):
@@ -219,7 +218,7 @@ def p_return(p):
     
 ## -- <asignacion> --
 def p_asignacion(p):
-    'asignacion : call_var push_operand OP_ASSIGN push_operator h_exp quad_assign' 
+    'asignacion : call_var n_push_operand OP_ASSIGN n_push_operator h_exp n_quad_assign' 
 
   
 ## -- <leer> --
@@ -227,8 +226,8 @@ def p_leer(p):
     'leer : READ lPAREN aux_leer rPAREN'
 
 def p_aux_leer(p):
-    '''aux_leer : call_var quad_read
-                | call_var quad_read SEP_COMMA aux_leer'''
+    '''aux_leer : call_var n_quad_read
+                | call_var n_quad_read SEP_COMMA aux_leer'''
                 
                 
 ## -- <escribir> --
@@ -240,25 +239,28 @@ def p_aux_escribir(p):
                     | aux_escribir2 SEP_COMMA aux_escribir'''
 
 def p_aux_escribir2(p):
-    '''aux_escribir2 : h_exp quad_print_exp
-                    | LETRERO quad_print
-                    | CTE_CHAR quad_print'''
+    '''aux_escribir2 : h_exp n_quad_print_exp
+                    | LETRERO n_quad_print
+                    | CTE_CHAR n_quad_print'''
     p[0] = p[1] # Pass the token to the parent rule
         
                     
 ## -- <condicion> --
 def p_condicion(p):
-    'condicion : IF lPAREN h_exp rPAREN lBRACE quad_if_jump_false bloque rBRACE aux_condicion quad_if_end'
+    'condicion : IF lPAREN h_exp rPAREN lBRACE n_quad_if_jump_false bloque rBRACE aux_condicion n_quad_if_end'
 
 def p_aux_condicion(p):
-    '''aux_condicion : quad_if_else ELSE lBRACE bloque rBRACE
+    '''aux_condicion : n_quad_if_else ELSE lBRACE bloque rBRACE
                      | empty'''
 
 
 ## -- <ciclo_while> --
 def p_ciclo_while(p):
-    'ciclo_while : WHILE lPAREN h_exp rPAREN bloque'
+    'ciclo_while : WHILE n_while_exp lPAREN h_exp rPAREN n_quad_while_false lBRACE bloque rBRACE n_quad_while_repeat'
 
+## -- <ciclo_do_while> --
+def p_ciclo_do_while(p):
+    'ciclo_do_while : DO n_do_while_start lBRACE bloque rBRACE WHILE lPAREN h_exp rPAREN n_quad_do_while_true'
 
 ## -- <ciclo_for> --
 def p_ciclo_for(p):
@@ -271,8 +273,8 @@ def p_aux_ciclofor(p):
 
 ## -- <h_exp> --
 def p_h_exp(p):
-    '''h_exp : s_exp quad_and_or
-             | s_exp quad_and_or aux_h_exp push_operator h_exp'''
+    '''h_exp : s_exp n_quad_and_or
+             | s_exp n_quad_and_or aux_h_exp n_push_operator h_exp'''
              
 def p_aux_h_exp(p):
     '''aux_h_exp : OP_AND
@@ -281,8 +283,8 @@ def p_aux_h_exp(p):
 
 ## -- <s_exp> --
 def p_s_exp(p):
-    '''s_exp : exp quad_compare
-             | exp quad_compare aux_s_exp push_operator s_exp'''
+    '''s_exp : exp n_quad_compare
+             | exp n_quad_compare aux_s_exp n_push_operator s_exp'''
 
 def p_aux_s_exp(p):
     '''aux_s_exp : OP_EQ
@@ -295,26 +297,26 @@ def p_aux_s_exp(p):
 
 ## -- <exp> --
 def p_exp(p):
-    '''exp : termino quad_add_substr
-           | termino quad_add_substr aux_exp exp'''
+    '''exp : termino n_quad_add_substr
+           | termino n_quad_add_substr aux_exp exp'''
            
 def p_aux_exp(p):
-    '''aux_exp : OP_ADD push_operator
-               | OP_SUBTR push_operator'''
+    '''aux_exp : OP_ADD n_push_operator
+               | OP_SUBTR n_push_operator'''
 
 ## -- <termino> --
 def p_termino(p):
-    '''termino : factor quad_mult_div
-               | factor quad_mult_div OP_MULT push_operator termino
-               | factor quad_mult_div OP_DIV push_operator termino'''
+    '''termino : factor n_quad_mult_div
+               | factor n_quad_mult_div OP_MULT n_push_operator termino
+               | factor n_quad_mult_div OP_DIV n_push_operator termino'''
            
 ## -- <factor> --  
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
 def p_factor(p):
-    '''factor : lPAREN false_bottom_start h_exp rPAREN false_bottom_end
-              | CTE_I type_int push_operand
-              | CTE_F type_float push_operand
-              | call_var push_operand
+    '''factor : lPAREN n_false_bottom_start h_exp rPAREN n_false_bottom_end
+              | CTE_I type_int n_push_operand
+              | CTE_F type_float n_push_operand
+              | call_var n_push_operand
               | call_func'''
     
 def p_empty(p):
@@ -323,8 +325,8 @@ def p_empty(p):
 
 # ----------- Neuralgic Points ----------- #
 
-def p_create_funcs_dict(p):
-    'create_funcs_dict : '
+def p_n_create_funcs_dict(p):
+    'n_create_funcs_dict : '
     
     quadruples.append(None) # Add a None to the list so the quadruples list can be indexed from 1
     
@@ -337,15 +339,15 @@ def p_create_funcs_dict(p):
     directory.Table[scope].varsTable.add_Variable(p[-1], 'Program', 0)
 
 
-def p_save_type(p):
-    'save_type : '
+def p_n_save_type(p):
+    'n_save_type : '
     
     global current_type 
     current_type = p[-1]
     
 
-def p_save_var(p):
-    'save_var : '
+def p_n_save_var(p):
+    'n_save_var : '
     
     global current_var
     current_var = p[-1]
@@ -357,37 +359,41 @@ def p_save_var(p):
     else:
         directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
     
-def p_add_var_dimension(p):
-    'add_var_dimension : '
+def p_n_add_var_dimension(p):
+    'n_add_var_dimension : '
     
     directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
     
-def p_save_func_type(p):
-    'save_func_type : '
+def p_n_save_func_type(p):
+    'n_save_func_type : '
     
     global function_type
     function_type = p[-1]
     
-def p_save_func(p):
-    'save_func : '
+def p_n_save_func(p):
+    'n_save_func : '
     
     global scope
+    global function_type
     scope = p[-1]
     
     if (directory.check_Existence(scope)):
         print("Error: Function '%s' already exists" % scope)
         p_error(-2)
-    else:
-        directory.add_Function(scope, function_type, 0)
     
-def p_add_param(p):
-    'add_param : '
+    if (scope == 'main'):
+        function_type = 'void'
+    
+    directory.add_Function(scope, function_type, 0)
+    
+def p_n_add_param(p):
+    'n_add_param : '
     
     directory.add_Func_Param(scope, current_type)
     directory.Table[scope].varsTable.add_Variable(p[-2], current_type, 0)
     
-def p_check_var_exists(p):
-    'check_var_exists : '
+def p_n_check_var_exists(p):
+    'n_check_var_exists : '
     
     if (not directory.Table[scope].varsTable.check_Existence(p[-2]) and not directory.Table['global'].varsTable.check_Existence(p[-2])):
         print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (p[-2], scope))
@@ -407,8 +413,8 @@ def p_type_float(p):
     current_type = 'float'
     p[0] = p[-1] # Return the value of the constant
         
-def p_push_operand(p):
-    'push_operand : '
+def p_n_push_operand(p):
+    'n_push_operand : '
     
     global stack_Operands
     global stack_Types
@@ -417,14 +423,14 @@ def p_push_operand(p):
     stack_Operands.append(operand)
     stack_Types.append(current_type)
     
-def p_push_operator(p):
-    'push_operator : '
+def p_n_push_operator(p):
+    'n_push_operator : '
     
     global stack_Operators
     stack_Operators.append(p[-1])
     
-def p_quad_assign(p):
-    'quad_assign : '
+def p_n_quad_assign(p):
+    'n_quad_assign : '
     
     global quadruples
     global quad_pointer
@@ -442,8 +448,8 @@ def p_quad_assign(p):
     quadruples.append(Quadruple(operator, oper_Izq, '', oper_Der))
     quad_pointer += 1
     
-def p_quad_read(p):
-    'quad_read : '
+def p_n_quad_read(p):
+    'n_quad_read : '
     
     global quadruples
     global quad_pointer
@@ -451,8 +457,8 @@ def p_quad_read(p):
     quadruples.append(Quadruple('READ', '', '', p[-1]))
     quad_pointer += 1
 
-def p_quad_print(p):
-    'quad_print : '
+def p_n_quad_print(p):
+    'n_quad_print : '
     
     global quadruples
     global quad_pointer
@@ -460,8 +466,8 @@ def p_quad_print(p):
     quadruples.append(Quadruple('PRINT', '', '', p[-1]))
     quad_pointer += 1
     
-def p_quad_print_exp(p):
-    'quad_print_exp : '
+def p_n_quad_print_exp(p):
+    'n_quad_print_exp : '
     
     global stack_Operands
     global stack_Types
@@ -476,8 +482,8 @@ def p_quad_print_exp(p):
     # TO DO: If the operand was a temporal, free the used space.
     
     
-def p_quad_add_substr(p):
-    'quad_add_substr : '
+def p_n_quad_add_substr(p):
+    'n_quad_add_substr : '
     
     global stack_Operands
     global stack_Types
@@ -512,8 +518,8 @@ def p_quad_add_substr(p):
             # TO DO: IF the operands were temporals, free the used space.
             
             
-def p_quad_mult_div(p):
-    'quad_mult_div : '
+def p_n_quad_mult_div(p):
+    'n_quad_mult_div : '
     
     global stack_Operands
     global stack_Types
@@ -547,8 +553,8 @@ def p_quad_mult_div(p):
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
 
-def p_quad_compare(p):
-    'quad_compare : '
+def p_n_quad_compare(p):
+    'n_quad_compare : '
     
     global stack_Operands
     global stack_Types
@@ -585,8 +591,8 @@ def p_quad_compare(p):
             stack_Types.append(result_type)
             # TO DO: IF the operands were temporals, free the used space.
 
-def p_quad_and_or(p):
-    'quad_and_or : '
+def p_n_quad_and_or(p):
+    'n_quad_and_or : '
     
     global stack_Operands
     global stack_Types
@@ -621,14 +627,14 @@ def p_quad_and_or(p):
             # TO DO: IF the operands were temporals, free the used space.
     
     
-def p_false_bottom_start(p):
-    'false_bottom_start : '
+def p_n_false_bottom_start(p):
+    'n_false_bottom_start : '
     
     global stack_Operands
     stack_Operators.append('(')
     
-def p_false_bottom_end(p):
-    'false_bottom_end : '
+def p_n_false_bottom_end(p):
+    'n_false_bottom_end : '
     
     if (len(stack_Operators) > 0 and stack_Operators[-1] == '('):
         stack_Operators.pop()
@@ -636,8 +642,8 @@ def p_false_bottom_end(p):
         print("Error: Parenthesis mismatch")
         p_error(-2)
         
-def p_quad_if_jump_false(p):
-    'quad_if_jump_false : '
+def p_n_quad_if_jump_false(p):
+    'n_quad_if_jump_false : '
     
     
     global stack_Operands
@@ -657,8 +663,8 @@ def p_quad_if_jump_false(p):
     quad_pointer += 1
     stack_Jumps.append(quad_pointer - 1)
 
-def p_quad_if_else(p):
-    'quad_if_else : '
+def p_n_quad_if_else(p):
+    'n_quad_if_else : '
     
     global quadruples
     global quad_pointer
@@ -671,8 +677,8 @@ def p_quad_if_else(p):
     stack_Jumps.append(quad_pointer - 1) # Crumb to right before the false section starts (in case its true, it will jump to the end of the if, skipping this part)
     quadruples[quad_incomplete].set_Result(quad_pointer) # Add where the false section starts
     
-def p_quad_if_end(p):
-    'quad_if_end : '
+def p_n_quad_if_end(p):
+    'n_quad_if_end : '
     
     
     global stack_Jumps
@@ -681,6 +687,70 @@ def p_quad_if_end(p):
     
     quad_incomplete = stack_Jumps.pop() 
     quadruples[quad_incomplete].set_Result(quad_pointer)
+    
+def p_n_while_exp(p):
+    'n_while_exp : '
+    
+    global stack_Jumps
+    global quad_pointer
+    
+    stack_Jumps.append(quad_pointer)
+    
+def p_n_quad_while_false(p):
+    'n_quad_while_false : '
+    
+    global stack_Jumps
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    global quad_pointer
+    
+    result_type = stack_Types.pop()
+    if (result_type != 'bool'):
+        print("Error: Result for condition must be boolean")
+        p_error(-2)
+        
+    result = stack_Operands.pop()
+    quadruples.append(Quadruple('GOTOF', result, '', ''))
+    quad_pointer += 1
+    
+    stack_Jumps.append(quad_pointer - 1)
+    
+def p_n_quad_while_repeat(p):
+    'n_quad_while_repeat : '
+    
+    global stack_Jumps
+    global quadruples
+    global quad_pointer
+    
+    quad_incomplete = stack_Jumps.pop()
+    quad_return = stack_Jumps.pop()
+    quadruples.append(Quadruple('GOTO', '', '', quad_return))
+    quad_pointer += 1
+    
+    quadruples[quad_incomplete].set_Result(quad_pointer)
+
+def p_n_do_while_start(p):
+    'n_do_while_start : '
+    
+    global stack_Jumps
+    global quad_pointer
+    
+    stack_Jumps.append(quad_pointer)
+    
+def p_n_quad_do_while_true(p):
+    'n_quad_do_while_true : '
+    
+    global stack_Jumps
+    global stack_Operands
+    global quad_pointer
+    
+    start_cycle = stack_Jumps.pop()
+    cond = stack_Operands.pop()
+    
+    quadruples.append(Quadruple('GOTOT', cond, '', start_cycle))
+    quad_pointer += 1
+    
     
 
 # ----------- Methods ----------- #
