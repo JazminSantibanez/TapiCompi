@@ -55,12 +55,13 @@ def p_programa(p):
     df.index += 1
     print(df)
     
-    """ global directory
+    global directory
     directory.print_Directory()
     print('\n')
         
     for key in directory.Table:
-        directory.Table[key].print_VarsTable() """
+        if key is not None:
+            directory.Table[key].print_VarsTable() 
     
 
 def p_aux_prog(p):
@@ -357,7 +358,7 @@ def p_n_save_var(p):
 def p_n_add_var_dimension(p):
     'n_add_var_dimension : '
     
-    directory.Table[scope].varsTable.n_add_var_dimension(current_var, p[-1])
+    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
     
 def p_n_save_func_type(p):
     'n_save_func_type : '
@@ -369,13 +370,17 @@ def p_n_save_func(p):
     'n_save_func : '
     
     global scope
+    global function_type
     scope = p[-1]
     
     if (directory.check_Existence(scope)):
         print("Error: Function '%s' already exists" % scope)
         p_error(-2)
-    else:
-        directory.add_Function(scope, function_type, 0)
+    
+    if (scope == 'main'):
+        function_type = 'void'
+    
+    directory.add_Function(scope, function_type, 0)
     
 def p_n_add_param(p):
     'n_add_param : '

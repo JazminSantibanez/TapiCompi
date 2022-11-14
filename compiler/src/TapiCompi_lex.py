@@ -41,6 +41,7 @@ reserved = {
     'else' : 'ELSE',
     
     'while' : 'WHILE',
+    'do' : 'DO',
     
     'for' : 'FOR',
     'to' : 'TO',

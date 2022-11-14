@@ -25,8 +25,7 @@ class Function_Info:
         self.varsTable = Vars_Table()
         
         self.dirInicio = dirInicio
-        self.Params = []
-        self.numParams = 0
+        self.params = []
         
         # Function resources
         self.num_int_local = 0
@@ -44,8 +43,7 @@ class Function_Info:
         return self.varsTable
     
     def add_Param(self, type):
-        self.Params.append(type)
-        self.numParams += 1
+        self.params.append(type)
     
     def print_VarsTable(self):
         self.varsTable.print_Table(self.name)
@@ -94,18 +92,16 @@ class Functions_Directory:
     
     def print_Directory(self):
         print(f'\n {"Directory of functions":^70s}')
-        print(f' {"="*70}')
+        print(f' {"="*80}')
         
         for key, value in self.Table.items():
-            print(f'> Name: {key:<15s} Type: {value.type:<10s} DirV: {value.dirInicio:<8} NumParams: {value.numParams}\tParamsType {value.Params}')
+            if key is not None:
+                print(f'> Name: {key:<15s} Type: {value.type:<8s} DirV: {value.dirInicio:<8} ParamsType {value.params}')
             
-            '''
-            print(" > Name:", key,
-                  "Type:", value.type,
-                  "DirV:", value.dirInicio,
-                  "NumParams:", value.numParams,
-                  "Params:", value.Params)
-            '''
+                """ print(" > Name:", key,
+                    "Type:", value.type,
+                    "DirV:", value.dirInicio,
+                    "params:", value.params) """
             
         #print(" < End of directory")
         
