@@ -207,6 +207,7 @@ def p_estatuto(p):
                 | return
                 | condicion
                 | ciclo_while
+                | ciclo_do_while
                 | ciclo_for
                 | COMENTARIO'''
 
@@ -255,8 +256,11 @@ def p_aux_condicion(p):
 
 ## -- <ciclo_while> --
 def p_ciclo_while(p):
-    'ciclo_while : WHILE n_quad_while_exp lPAREN h_exp rPAREN n_quad_while_false lBRACE bloque rBRACE n_quad_while_repeat'
+    'ciclo_while : WHILE n_while_exp lPAREN h_exp rPAREN n_quad_while_false lBRACE bloque rBRACE n_quad_while_repeat'
 
+## -- <ciclo_do_while> --
+def p_ciclo_do_while(p):
+    'ciclo_do_while : DO n_do_while_start lBRACE bloque rBRACE WHILE lPAREN h_exp rPAREN n_quad_do_while_true'
 
 ## -- <ciclo_for> --
 def p_ciclo_for(p):
@@ -684,8 +688,8 @@ def p_n_quad_if_end(p):
     quad_incomplete = stack_Jumps.pop() 
     quadruples[quad_incomplete].set_Result(quad_pointer)
     
-def p_n_quad_while_exp(p):
-    'n_quad_while_exp : '
+def p_n_while_exp(p):
+    'n_while_exp : '
     
     global stack_Jumps
     global quad_pointer
@@ -725,6 +729,28 @@ def p_n_quad_while_repeat(p):
     quad_pointer += 1
     
     quadruples[quad_incomplete].set_Result(quad_pointer)
+
+def p_n_do_while_start(p):
+    'n_do_while_start : '
+    
+    global stack_Jumps
+    global quad_pointer
+    
+    stack_Jumps.append(quad_pointer)
+    
+def p_n_quad_do_while_true(p):
+    'n_quad_do_while_true : '
+    
+    global stack_Jumps
+    global stack_Operands
+    global quad_pointer
+    
+    start_cycle = stack_Jumps.pop()
+    cond = stack_Operands.pop()
+    
+    quadruples.append(Quadruple('GOTOT', cond, '', start_cycle))
+    quad_pointer += 1
+    
     
 
 # ----------- Methods ----------- #

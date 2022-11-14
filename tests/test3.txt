@@ -5,10 +5,25 @@ main()
     var
     int A, B, C, D;
     
-    A = B
-    while (A < B * C)
+    while ( A + B * C < D)
     {
-        A = A + C
+        if (A + B < C)
+        {
+            A = B + C
+            do 
+            {
+                A = A - 1
+            } while (A > B + C)
+        }
+        else
+        {
+            while ( B > C + D)
+            {
+                A = B + C * D
+                B = A - D
+            }
+        }
     }
-    D = A + B
+    A = B * C
+    C = 0
 }
