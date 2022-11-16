@@ -171,21 +171,21 @@ class Address_Manager:
         
     def reset_local(self):
         # Local & temporal variables
-        self.local_int_pointer = LOCAL_INT_START
-        self.local_int_temp_pointer = LOCAL_INT_TEMP_START
+        self.local_int_pointer = LOCAL_INT_START + 1
+        self.local_int_temp_pointer = LOCAL_INT_TEMP_START + 1
         
-        self.local_float_pointer = LOCAL_FLOAT_START
-        self.local_float_temp_pointer = LOCAL_FLOAT_TEMP_START
+        self.local_float_pointer = LOCAL_FLOAT_START + 1
+        self.local_float_temp_pointer = LOCAL_FLOAT_TEMP_START + 1
         
-        self.local_char_pointer = LOCAL_CHAR_START
-        self.local_char_temp_pointer = LOCAL_CHAR_TEMP_START
+        self.local_char_pointer = LOCAL_CHAR_START + 1
+        self.local_char_temp_pointer = LOCAL_CHAR_TEMP_START + 1
         
-        self.local_bool_pointer = LOCAL_BOOL_START
-        self.local_bool_temp_pointer = LOCAL_BOOL_TEMP_START
-        
-        # Constant variables
-        self.const_int_pointer = CONST_INT_START
-        self.const_float_pointer = CONST_FLOAT_START
-        self.const_char_pointer = CONST_CHAR_START
-        self.const_bool_pointer = CONST_BOOL_START
+        self.local_bool_pointer = LOCAL_BOOL_START + 1
+        self.local_bool_temp_pointer = LOCAL_BOOL_TEMP_START + 1
+         
+        # Constant variables 
+        self.const_int_pointer = CONST_INT_START + 1
+        self.const_float_pointer = CONST_FLOAT_START + 1
+        self.const_char_pointer = CONST_CHAR_START + 1
+        self.const_bool_pointer = CONST_BOOL_START + 1
         

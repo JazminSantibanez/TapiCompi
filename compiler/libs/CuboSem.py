@@ -30,9 +30,9 @@ dict_Logicos = {
     'bool': {'bool': 'bool'},
 }
 
-dict_SameType = {
-    'int': {'int': 'int'},
-    'float': {'float': 'float'},
+dict_Assign = {
+    'int': {'int': 'int', 'float': 'int'},
+    'float': {'float': 'float', 'int': 'float'},
     'bool': {'bool': 'bool'},
     'char': {'char': 'char'}
 }
@@ -59,7 +59,7 @@ Cubo_Sem = {
     '|': dict_Logicos,
     
     # Asssign
-    '=': dict_SameType
+    '=': dict_Assign
 }
 
 df_cuboSem = pd.DataFrame(Cubo_Sem)

@@ -28,6 +28,8 @@ stack_Operands = deque() # Stack that stores the operands
 stack_Types = deque() # Stack that stores the types of the operands
 stack_Jumps = deque() # Stack that stores the jumps
 
+param_counter = 0; # Variable that manages the index of the parameter being analyzed
+
 Addr_Manager = Address_Manager()
 
 # ----------- Parsing Rules  ----------- #
@@ -149,7 +151,10 @@ def p_call_var(p):
     p[0] = p[1] # Pass the token to the parent rule
     
     global current_type
-    current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
+    if (directory.Table[scope].varsTable.check_Existence(p[1])):
+        current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
+    elif (directory.Table['global'].varsTable.check_Existence(p[1])):
+        current_type = directory.Table['global'].varsTable.Table[p[1]].get_Type()
     
 def p_aux_cv(p):
     '''aux_cv : arr aux_cv2
@@ -162,7 +167,7 @@ def p_aux_cv2(p):
 
 # -- <dec_func> --
 def p_dec_func(p):
-    'dec_func : FUNC aux_df n_save_func_type ID n_save_func lPAREN aux_df2 rPAREN cuerpo'
+    'dec_func : FUNC aux_df n_save_func_type ID n_save_func lPAREN aux_df2 rPAREN n_func_start cuerpo n_quad_endfunc'
     # Reset variables address
     Addr_Manager.reset_local()
     
@@ -187,10 +192,10 @@ def p_aux_params(p):
 
 ## -- <call_func>
 def p_call_func(p):
-    'call_func : ID lPAREN aux_cf rPAREN'
+    'call_func : ID n_quad_func_era lPAREN aux_cf n_func_check_params rPAREN n_quad_func_gosub'
 
 def p_aux_cf(p):
-    '''aux_cf : h_exp aux_cf2
+    '''aux_cf : h_exp n_quad_func_param aux_cf2
               | empty'''
               
 def p_aux_cf2(p):
@@ -328,7 +333,10 @@ def p_empty(p):
 def p_n_create_funcs_dict(p):
     'n_create_funcs_dict : '
     
+    global quad_pointer
     quadruples.append(None) # Add a None to the list so the quadruples list can be indexed from 1
+    quadruples.append(Quadruple('GOTO', '', '', 'Main')) # Add the first quadruple to the list
+    quad_pointer += 1 
     
     global scope
     scope = 'global'
@@ -336,7 +344,7 @@ def p_n_create_funcs_dict(p):
     global directory
     directory = Functions_Directory()
     directory.add_Function(scope, 'void', 0)    
-    directory.Table[scope].varsTable.add_Variable(p[-1], 'Program', 0)
+    directory.Table[scope].add_Variable(p[-1], 'Program', 0)
 
 
 def p_n_save_type(p):
@@ -357,7 +365,7 @@ def p_n_save_var(p):
         print("Error: Multiple declaration. \n Variable '%s' already exists in scope '%s'" % (current_var, scope))
         p_error(-2)
     else:
-        directory.Table[scope].varsTable.add_Variable(current_var, current_type, 0)
+        directory.Table[scope].add_Variable(current_var, current_type, 0)
     
 def p_n_add_var_dimension(p):
     'n_add_var_dimension : '
@@ -750,6 +758,86 @@ def p_n_quad_do_while_true(p):
     
     quadruples.append(Quadruple('GOTOT', cond, '', start_cycle))
     quad_pointer += 1
+    
+def p_n_func_start(p):
+    'n_func_start : '
+    
+    global directory
+    
+    directory.Table[scope].dirStart = quad_pointer
+    
+def p_n_quad_endfunc(p):
+    'n_quad_endfunc : '
+    
+    global quadruples
+    global quad_pointer
+    
+    quadruples.append(Quadruple('ENDFUNC', '', '', ''))
+    quad_pointer += 1
+    
+def p_n_quad_func_era(p):
+    'n_quad_func_era : '
+    
+    global scope
+    global quadruples
+    global quad_pointer
+    
+    scope = p[-1]
+    
+    if (  not directory.check_Existence(scope) ):
+        print("Error: Function  '%s' was called but does not exist" % scope)
+        p_error(-2)
+        
+    quadruples.append(Quadruple('ERA', scope, '', ''))
+    quad_pointer += 1
+    
+def p_n_quad_func_param(p):
+    'n_quad_func_param : '
+    
+    global param_counter
+    global quad_pointer
+    global stack_Operands
+    global stack_Types
+    global quadruples
+    
+    arg = stack_Operands.pop()
+    arg_type = stack_Types.pop()
+    param_type = directory.get_Param_Type(scope, param_counter)
+    
+    print(scope, param_counter, arg_type, param_type)
+    
+    if (param_type == 'None'):
+        print("Error: Function '%s' was called with more arguments than the declared ones." % scope)
+        p_error(-2)
+    
+    if (param_type != arg_type):
+        print("Error: Type mismatch in parameter %d" % param_counter + 1)
+        p_error(-2)
+    
+    quadruples.append(Quadruple('PARAM', arg, 'P-'+str(param_counter), arg_type))
+    quad_pointer += 1
+    param_counter += 1
+    
+def p_n_func_check_params(p):
+    'n_func_check_params : '
+    
+    global directory
+    
+    if ( directory.get_Param_Type(scope, param_counter) != 'None' ):
+        print("Error: Function '%s' was called with less arguments than the declared ones." % scope)
+        p_error(-2)
+    
+def p_n_quad_func_gosub(p):
+    'n_quad_func_gosub : '
+    
+    global quad_pointer
+    global quadruples
+    global scope
+    
+    quadruples.append(Quadruple('GOSUB', scope, '', ''))
+    quad_pointer += 1
+    
+    
     
     
 

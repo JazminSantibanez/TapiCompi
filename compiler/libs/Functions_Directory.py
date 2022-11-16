@@ -13,7 +13,7 @@ class Function_Info:
         varsTable (Vars_Table): table of variables 
     """
     #Constructor
-    def __init__(self, name : str, type : Type, dirInicio : int):
+    def __init__(self, name : str, type : Type, dirStart : int):
         '''
         Args:
             name (str) : name of the function
@@ -24,7 +24,7 @@ class Function_Info:
         self.type = type
         self.varsTable = Vars_Table()
         
-        self.dirInicio = dirInicio
+        self.dirStart = dirStart
         self.params = []
         
         # Function resources
@@ -47,6 +47,19 @@ class Function_Info:
     
     def print_VarsTable(self):
         self.varsTable.print_Table(self.name)
+        
+    def add_Variable( self, name : str, type, dirV : int):
+        match type:
+            case 'int':
+                self.num_int_local += 1
+            case 'float':
+                self.num_float_local += 1
+            case 'char':
+                self.num_char_local += 1
+            case 'bool':
+                self.num_bool_local += 1
+        
+        self.varsTable.add_Variable(name, type, dirV)
         
 
 
@@ -88,7 +101,11 @@ class Functions_Directory:
     
     def add_Func_Param(self, name, type):
         self.Table[name].add_Param(type)
-    
+        
+    def get_Param_Type(self, name, index):
+        if index < len(self.Table[name].params):
+            return self.Table[name].params[index]
+        return 'None'
     
     def print_Directory(self):
         print(f'\n {"Directory of functions":^70s}')
@@ -96,8 +113,8 @@ class Functions_Directory:
         
         for key, value in self.Table.items():
             if key is not None:
-                print(f'> Name: {key:<15s} Type: {value.type:<8s} DirV: {value.dirInicio:<8} ParamsType {value.params}')
-            
+                print(f'> Name: {key:<15s} Type: {value.type:<8s} DirV: {value.dirStart:<8} ParamsType {value.params}')
+                print(f'┕ recursos: \n\tint : {value.num_int_local}, {value.num_int_temp} \tfloat: {value.num_float_local}, {value.num_float_temp} \n\tchar: {value.num_char_local}, {value.num_char_temp} \tbool: {value.num_bool_local}, {value.num_bool_temp}')
                 """ print(" > Name:", key,
                     "Type:", value.type,
                     "DirV:", value.dirInicio,

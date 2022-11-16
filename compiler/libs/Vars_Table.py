@@ -64,7 +64,7 @@ class Vars_Table:
         self.Table = {}
 
     # Adds variable to the table
-    def add_Variable(self, name : str, type : Type, dirV : int):
+    def add_Variable(self, name : str, type, dirV : int):
         '''
         Args:
             type (Type) : type of the variable

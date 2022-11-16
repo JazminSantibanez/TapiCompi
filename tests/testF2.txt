@@ -1,0 +1,37 @@
+program patito:
+
+var
+int i, j, k;
+float f;
+
+func void uno (int a, int b)
+{
+    if (a > 0)
+    {
+        i = a + b * j + i
+        print ( i + j)
+    }
+    else
+    {
+        print (a + b)
+    }
+}
+
+func void dos(int a, float g)
+{
+    var
+    int i;
+    i = a
+    while (a>0)
+    {
+        a = a - k * j
+        uno(a*2, a+k)
+    }
+}
+
+main()
+{
+    var
+    float z;
+    z = 3.14
+}

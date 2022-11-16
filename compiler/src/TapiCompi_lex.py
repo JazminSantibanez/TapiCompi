@@ -66,7 +66,7 @@ tokens = [
     'SEP_COLON', ## :
     
     'ID',
-    'CTE_I', 'CTE_F', 'CTE_CHAR',
+    'CTE_F', 'CTE_I', 'CTE_CHAR',
     'LETRERO', 'COMENTARIO',
 ]
 
@@ -119,15 +119,14 @@ def t_ID(t):
     #t.value = (t.value, symbol_lookup(t.value))
     return t
 
+def t_CTE_F(t):
+    r'\d+\.\d+'
+    t.value = float(t.value)
+    return t
+
 def t_CTE_I(t):
     r'[0-9]+'
     t.value = int(t.value)
-    return t
-
-
-def t_CTE_F(t):
-    r'[0-9]+(\.[0-9]+)?'
-    t.value = float(t.value)
     return t
 
 def t_CTE_CHAR(t):
