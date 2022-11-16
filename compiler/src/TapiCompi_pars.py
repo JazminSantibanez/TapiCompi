@@ -218,7 +218,7 @@ def p_estatuto(p):
 
 ## -- <return> --
 def p_return(p):
-    'return : RETURN lPAREN h_exp rPAREN'
+    'return : RETURN lPAREN h_exp rPAREN n_quad_return'
     
     
 ## -- <asignacion> --
@@ -335,8 +335,9 @@ def p_n_create_funcs_dict(p):
     
     global quad_pointer
     quadruples.append(None) # Add a None to the list so the quadruples list can be indexed from 1
-    quadruples.append(Quadruple('GOTO', '', '', 'Main')) # Add the first quadruple to the list
+    quadruples.append(Quadruple('GOTO', '', '', 'main')) # Add the first quadruple to the list
     quad_pointer += 1 
+    stack_Jumps.append(quad_pointer - 1) 
     
     global scope
     scope = 'global'
@@ -391,8 +392,16 @@ def p_n_save_func(p):
     
     if (scope == 'main'):
         function_type = 'void'
+        quad_goto_main = stack_Jumps.pop()
+        quadruples[quad_goto_main].set_Result(quad_pointer)
     
     directory.add_Function(scope, function_type, 0)
+    
+    # If theres a return type, add a variable with the function's name,
+    # to store the return value
+    
+    if (function_type != 'void'):
+        directory.Table[scope].add_Variable(scope, function_type, 0)
     
 def p_n_add_param(p):
     'n_add_param : '
@@ -838,7 +847,27 @@ def p_n_quad_func_gosub(p):
     quad_pointer += 1
     
     
+def p_n_quad_return(p):
+    'n_quad_return : '
     
+    if (directory.get_Return_Type(scope) == 'void'):
+        print("Error: Function '%s' must not return a value" % scope)
+        p_error(-2)
+    
+    global quad_pointer
+    global quadruples
+    global stack_Operands
+    global stack_Types
+    
+    result = stack_Operands.pop()
+    result_type = stack_Types.pop()
+    
+    if (result_type != directory.get_Return_Type(scope)):
+        print("Error: Type mismatch in return value")
+        p_error(-2)
+    
+    quadruples.append(Quadruple('RETURN', '', '', result))
+    quad_pointer += 1
     
 
 # ----------- Methods ----------- #

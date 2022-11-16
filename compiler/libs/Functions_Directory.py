@@ -107,6 +107,9 @@ class Functions_Directory:
             return self.Table[name].params[index]
         return 'None'
     
+    def get_Return_Type(self, name):
+        return self.Table[name].type
+    
     def print_Directory(self):
         print(f'\n {"Directory of functions":^70s}')
         print(f' {"="*80}')
