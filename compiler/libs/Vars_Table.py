@@ -9,6 +9,7 @@
 
 # Path: TapiCompi.compiler.libs
 
+import pandas as pd
 from libs.utils.enums import Type
 
 
@@ -48,6 +49,10 @@ class Var_Info:
     def add_Dimension(self, size):
         self.numDimensions += 1
         self.sizeDimensions.append(size)
+        
+    def to_list(self):
+        return ([self.name, self.type, self.dirV, self.numDimensions, self.sizeDimensions])
+        
 
 
 class Vars_Table:
@@ -86,16 +91,15 @@ class Vars_Table:
     
     def print_Table(self, nameFunc):
         print(f'\n{"Table of variables of scope: ":>40}{nameFunc:<35}')
-        print(f' |{"Name":^20} | {"Type":^8} | {"dirV":^8} | {"Dims":} |\t{"SizeDimensions"}  ')
-            
         print(f' |{"-"*70}|')
-        
+
+        if (not self.Table):
+            return
         for key, value in self.Table.items():
-            print(f' |{key:^20} | {value.type:8} | {value.dirV:^8} | {value.numDimensions:^4} | {value.sizeDimensions} \t|')
+            self.Table[key] = value.to_list()
             
-            
-        #print(" < End of table")    
-    
+        df = pd.DataFrame.from_dict(self.Table, orient='index', columns=['Name', 'Type', 'DirV', 'NumDimensions', 'SizeDimensions']) 
+        print(df.to_string(index=False))
 # Tests
 """ if __name__ == '__main__':
     variables = Vars_Table()

@@ -148,13 +148,16 @@ def p_aux_arr(p):
 # -- <call_var> --
 def p_call_var(p):
     'call_var : ID aux_cv n_check_var_exists'
-    p[0] = p[1] # Pass the token to the parent rule
-    
+   
     global current_type
     if (directory.Table[scope].varsTable.check_Existence(p[1])):
         current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
+        addr = directory.Table[scope].varsTable.Table[p[1]].get_DirV()
     elif (directory.Table['global'].varsTable.check_Existence(p[1])):
         current_type = directory.Table['global'].varsTable.Table[p[1]].get_Type()
+        addr = directory.Table['global'].varsTable.Table[p[1]].get_DirV()
+        
+    p[0] = addr # Pass the addrs of the variable to the parent rule
     
 def p_aux_cv(p):
     '''aux_cv : arr aux_cv2
@@ -365,8 +368,14 @@ def p_n_save_var(p):
     if (directory.Table[scope].varsTable.check_Existence(current_var)):
         print("Error: Multiple declaration. \n Variable '%s' already exists in scope '%s'" % (current_var, scope))
         p_error(-2)
+    
+    if (scope == 'global'):
+        addr = Addr_Manager.get_Global_Dir(current_type)
     else:
-        directory.Table[scope].add_Variable(current_var, current_type, 0)
+        addr = Addr_Manager.get_Local_Dir(current_type)
+    
+    #print(scope, current_var, current_type, addr)
+    directory.Table[scope].add_Variable(current_var, current_type, addr)
     
 def p_n_add_var_dimension(p):
     'n_add_var_dimension : '
@@ -401,13 +410,15 @@ def p_n_save_func(p):
     # to store the return value
     
     if (function_type != 'void'):
-        directory.Table[scope].add_Variable(scope, function_type, 0)
+        addr = Addr_Manager.get_Local_Dir(function_type)
+        directory.Table[scope].add_Variable(scope, function_type, addr)
     
 def p_n_add_param(p):
     'n_add_param : '
     
     directory.add_Func_Param(scope, current_type)
-    directory.Table[scope].varsTable.add_Variable(p[-2], current_type, 0)
+    addr = Addr_Manager.get_Local_Dir(current_type)
+    directory.Table[scope].varsTable.add_Variable(p[-2], current_type, addr)
     
 def p_n_check_var_exists(p):
     'n_check_var_exists : '

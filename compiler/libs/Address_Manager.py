@@ -160,15 +160,39 @@ class Address_Manager:
             self.const_bool_pointer += 1
             return self.const_bool_pointer - 1
         
+    def get_Global_Dir(self,  type):
+        match type:
+            case "int":
+                return self.get_Global_Int_Dir()
+            case "float":
+                return self.get_Global_Float_Dir()
+            case "char":
+                return self.get_Global_Char_Dir()
+            case "bool":
+                return self.get_Global_Bool_Dir()
+            
+    def get_Local_Dir(self,  type):
+        match type:
+            case "int":
+                return self.get_Local_Int_Dir()
+            case "float":
+                return self.get_Local_Float_Dir()
+            case "char":
+                return self.get_Local_Char_Dir()
+            case "bool":
+                return self.get_Local_Bool_Dir()
+        
+    
     def get_Local_Temporal_Dir(self, type):
-        if (type == "int"):
-            return self.get_Local_Int_Temp_Dir()
-        elif (type == "float"):
-            return self.get_Local_Float_Temp_Dir()
-        elif (type == "char"):
-            return self.get_Local_Char_Temp_Dir()
-        elif (type == "bool"):
-            return self.get_Local_Bool_Temp_Dir()
+        match type:
+            case "int":
+                return self.get_Local_Int_Temp_Dir()
+            case "float":
+                return self.get_Local_Float_Temp_Dir()
+            case "char":
+                return self.get_Local_Char_Temp_Dir()
+            case "bool":
+                return self.get_Local_Bool_Temp_Dir()
         
     # Conversion of virtual address to memory array index
     def get_Memory_Index(self, virtual_addr, type):
