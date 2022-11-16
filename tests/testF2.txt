@@ -1,0 +1,23 @@
+program patito:
+
+var
+int i, j, k;
+
+func int uno (int j)
+{
+    var int i;
+    i = j + ( k - j * 2 + j)
+    if ( j > 0)
+    {
+        
+    }
+    return(i)
+}
+
+func void dos()
+{
+}
+
+main()
+{
+}

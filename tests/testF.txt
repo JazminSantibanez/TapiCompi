@@ -9,6 +9,7 @@ bool t;
 func void fun1 ()
 {
     var int queso;
+    queso = 3
 }
 
 func int fun2 (float size)

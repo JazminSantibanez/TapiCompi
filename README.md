@@ -37,3 +37,12 @@ Declaración de variables y funciones funciona correctamente (detecta doble decl
 Se generan cuadruplos correctos para los estatutos secuenciales: asignacion, leer y escribir.
 
 Se generan cuadruplos correctos para expresiones aritmeticas básicas (sumar, restar, multiplicar y dividir), incluyendo paréntesis.
+
+# Avance 5
+Se generan cuadruplos correctos para condicionales y ciclos: if, while.
+
+# Avance 6
+Se agrego do-while al lexico y semmántica. Se generan cuádruplos para este estatuto.
+
+Se generan cuadruplos correctos para las funciones, así como la dirección de las funciones.
+Se comenzó la implementación del segmento de memoria y del manejo de direcciones.
