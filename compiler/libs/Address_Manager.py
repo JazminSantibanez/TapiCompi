@@ -29,7 +29,8 @@ class Address_Manager:
         self.const_float_pointer = CONST_FLOAT_START + 1
         self.const_char_pointer = CONST_CHAR_START + 1
         self.const_bool_pointer = CONST_BOOL_START + 1
-        
+    
+    #Getters for new directions
     def get_Global_Int_Dir(self):
         if (self.global_int_pointer > GLOBAL_INT_END):
             print("Error: Global Int pointer out of range")
@@ -168,6 +169,37 @@ class Address_Manager:
             return self.get_Local_Char_Temp_Dir()
         elif (type == "bool"):
             return self.get_Local_Bool_Temp_Dir()
+        
+    # Conversion of virtual address to memory array index
+    def get_Memory_Index(self, virtual_addr, type):
+        if (virtual_addr >= GLOBAL_INT_START and virtual_addr <= GLOBAL_INT_END):
+            return virtual_addr - GLOBAL_INT_START
+        elif (virtual_addr >= GLOBAL_FLOAT_START and virtual_addr <= GLOBAL_FLOAT_END):
+            return virtual_addr - GLOBAL_FLOAT_START
+        elif (virtual_addr >= GLOBAL_CHAR_START and virtual_addr <= GLOBAL_CHAR_END):
+            return virtual_addr - GLOBAL_CHAR_START
+        elif (virtual_addr >= GLOBAL_BOOL_START and virtual_addr <= GLOBAL_BOOL_END):
+            return virtual_addr - GLOBAL_BOOL_START
+        elif (virtual_addr >= LOCAL_INT_START and virtual_addr <= LOCAL_INT_END):
+            return virtual_addr - LOCAL_INT_START
+        elif (virtual_addr >= LOCAL_FLOAT_START and virtual_addr <= LOCAL_FLOAT_END):
+            return virtual_addr - LOCAL_FLOAT_START
+        elif (virtual_addr >= LOCAL_CHAR_START and virtual_addr <= LOCAL_CHAR_END):
+            return virtual_addr - LOCAL_CHAR_START
+        elif (virtual_addr >= LOCAL_BOOL_START and virtual_addr <= LOCAL_BOOL_END):
+            return virtual_addr - LOCAL_BOOL_START
+        elif (virtual_addr >= CONST_INT_START and virtual_addr <= CONST_INT_END):
+            return virtual_addr - CONST_INT_START
+        elif (virtual_addr >= CONST_FLOAT_START and virtual_addr <= CONST_FLOAT_END):
+            return virtual_addr - CONST_FLOAT_START
+        elif (virtual_addr >= CONST_CHAR_START and virtual_addr <= CONST_CHAR_END):
+            return virtual_addr - CONST_CHAR_START
+        elif (virtual_addr >= CONST_BOOL_START and virtual_addr <= CONST_BOOL_END):
+            return virtual_addr - CONST_BOOL_START
+        else:
+            print("Error: Virtual address out of range.")
+            return -1
+        
         
     def reset_local(self):
         # Local & temporal variables

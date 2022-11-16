@@ -3,7 +3,7 @@ program patito:
 var
 int i, j, k;
 
-func float uno (int j)
+func int uno (int j)
 {
     var int i;
     i = j + ( k - j * 2 + j)

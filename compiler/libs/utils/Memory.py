@@ -1,0 +1,41 @@
+import numpy as np
+from libs.Address_Manager import *
+from libs.utils.Constants import *
+
+class Memory:
+    def __init__(self, li, lf, lc, lb, ti, tf, tc, tb):
+        self.local_int = np.empty(li, dtype=int)
+        self.local_float = np.empty(lf, dtype=float)
+        self.local_char = np.empty(lc, dtype="U1")
+        self.local_bool = np.empty(lb, dtype=bool)
+        
+        self.temp_int = np.empty(ti, dtype=int)
+        self.temp_float = np.empty(tf, dtype=float)
+        self.temp_char = np.empty(tc, dtype="U1")
+        self.temp_bool = np.empty(tb, dtype=bool)
+        
+    def set_value(self, virtual_address, value):
+        index = Address_Manager.get_Memory_Index(virtual_address)
+        
+        # Local/Global variables        
+        if ((virtual_address >= GLOBAL_INT_START and virtual_address <= GLOBAL_INT_END) or 
+            (virtual_address >= LOCAL_INT_START and virtual_address < LOCAL_INT_TEMP_START)):
+            self.local_int[index] = value
+        elif ((virtual_address >= GLOBAL_FLOAT_START and virtual_address <= GLOBAL_FLOAT_END) or 
+              (virtual_address >= LOCAL_FLOAT_START and virtual_address < LOCAL_FLOAT_TEMP_START)):
+            self.local_float[index] = value
+        elif ((virtual_address >= GLOBAL_CHAR_START and virtual_address <= GLOBAL_CHAR_END) or 
+              (virtual_address >= LOCAL_CHAR_START and virtual_address < LOCAL_CHAR_TEMP_START)):
+            self.local_char[index] = value
+        elif ((virtual_address >= GLOBAL_BOOL_START and virtual_address <= GLOBAL_BOOL_END) or 
+              (virtual_address >= LOCAL_BOOL_START and virtual_address < LOCAL_BOOL_TEMP_START)):
+            self.local_bool[index] = value
+        # Temporal variables
+        elif ((virtual_address >= LOCAL_INT_TEMP_START and virtual_address <= LOCAL_INT_END)):
+            self.temp_int[index] = value
+        elif ((virtual_address >= LOCAL_FLOAT_TEMP_START and virtual_address <= LOCAL_FLOAT_END)):
+            self.temp_float[index] = value
+        elif ((virtual_address >= LOCAL_CHAR_TEMP_START and virtual_address <= LOCAL_CHAR_END)):
+            self.temp_char[index] = value
+        elif ((virtual_address >= LOCAL_BOOL_TEMP_START and virtual_address <= LOCAL_BOOL_END)):
+            self.temp_bool[index] = value
