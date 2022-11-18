@@ -1,5 +1,5 @@
 import sys
-from src.TapiCompi_pars import parser, quadruples, directory
+from src.TapiCompi_pars import parser, quadruples, directory, const_table
 from src.TapiCompi_lex import Tokenize
 from vm.Virtual_Machine import Virtual_Machine
 
@@ -9,8 +9,9 @@ def run(code):
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
             print('\nCompilacion exitosa')
-            vm = Virtual_Machine(quadruples, directory)
+            vm = Virtual_Machine(quadruples, directory, const_table)
             vm.print_FuncsDirectory()
+            print('Constants: ', const_table)
             vm.print_Quadruples()
             vm.run()
                         

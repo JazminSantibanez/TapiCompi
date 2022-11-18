@@ -15,7 +15,7 @@ class Memory:
         self.temp_bool = np.empty(tb, dtype=bool)
         
     def set_value(self, virtual_address, value):
-        index = Address_Manager.get_Memory_Index(virtual_address)
+        index = get_Memory_Index(virtual_address)
         
         # Local/Global variables        
         if ((virtual_address >= GLOBAL_INT_START and virtual_address <= GLOBAL_INT_END) or 
@@ -39,3 +39,28 @@ class Memory:
             self.temp_char[index] = value
         elif ((virtual_address >= LOCAL_BOOL_TEMP_START and virtual_address <= LOCAL_BOOL_END)):
             self.temp_bool[index] = value
+            
+    def get_value(self, virtual_address):
+        index = get_Memory_Index(virtual_address)
+         # Local/Global variables        
+        if ((virtual_address >= GLOBAL_INT_START and virtual_address <= GLOBAL_INT_END) or 
+            (virtual_address >= LOCAL_INT_START and virtual_address < LOCAL_INT_TEMP_START)):
+            return self.local_int[index] 
+        elif ((virtual_address >= GLOBAL_FLOAT_START and virtual_address <= GLOBAL_FLOAT_END) or 
+              (virtual_address >= LOCAL_FLOAT_START and virtual_address < LOCAL_FLOAT_TEMP_START)):
+            return self.local_float[index]
+        elif ((virtual_address >= GLOBAL_CHAR_START and virtual_address <= GLOBAL_CHAR_END) or 
+              (virtual_address >= LOCAL_CHAR_START and virtual_address < LOCAL_CHAR_TEMP_START)):
+            return self.local_char[index]
+        elif ((virtual_address >= GLOBAL_BOOL_START and virtual_address <= GLOBAL_BOOL_END) or 
+              (virtual_address >= LOCAL_BOOL_START and virtual_address < LOCAL_BOOL_TEMP_START)):
+            return self.local_bool[index]
+        # Temporal variables
+        elif ((virtual_address >= LOCAL_INT_TEMP_START and virtual_address <= LOCAL_INT_END)):
+            return self.temp_int[index]
+        elif ((virtual_address >= LOCAL_FLOAT_TEMP_START and virtual_address <= LOCAL_FLOAT_END)):
+            return self.temp_float[index]
+        elif ((virtual_address >= LOCAL_CHAR_TEMP_START and virtual_address <= LOCAL_CHAR_END)):
+            return self.temp_char[index]
+        elif ((virtual_address >= LOCAL_BOOL_TEMP_START and virtual_address <= LOCAL_BOOL_END)):
+            return self.temp_bool[index]

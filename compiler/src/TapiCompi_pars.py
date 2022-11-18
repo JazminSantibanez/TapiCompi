@@ -14,6 +14,7 @@ from libs.Address_Manager import Address_Manager
 # ----------- Auxiliar variables ------------ #
 
 directory = Functions_Directory()  # Variable that stores the directory of functions
+const_table = dict() # Dictionary that stores the constants. {Key: Number/Char, Value: Address}
 
 scope = None # Variable that stores the current scope
 func = None # Variable that stores the name of the func called
@@ -130,8 +131,7 @@ def p_arr(p):
     'arr : lBRACKET aux_arr n_add_var_dimension rBRACKET'
 
 def p_aux_arr(p):
-    '''aux_arr : ID
-               | CTE_I'''
+    '''aux_arr : CTE_I'''
     p[0] = p[1] # Pass the token to the parent rule
 
 
@@ -317,8 +317,8 @@ def p_termino(p):
     #** Falta agregar que factor pueda ser negativo (OP_SUBTR factor)
 def p_factor(p):
     '''factor : lPAREN n_false_bottom_start h_exp rPAREN n_false_bottom_end
-              | CTE_I type_int n_push_operand
-              | CTE_F type_float n_push_operand
+              | CTE_I n_save_cteI n_push_operand
+              | CTE_F n_save_cteF n_push_operand
               | call_var n_push_operand
               | call_func'''
     
@@ -394,11 +394,13 @@ def p_n_save_func(p):
         p_error(-2)
     
     if (scope == 'main'):
-        function_type = 'void'
         quad_goto_main = stack_Jumps.pop()
         quadruples[quad_goto_main].set_Result(quad_pointer)
-    
-    directory.add_Function(scope, function_type, 0)
+        
+        scope = 'global'
+        function_type = 'void'
+    else:
+        directory.add_Function(scope, function_type, 0)
     
     # If theres a return type, add a variable with the function's name,
     # to store the return value
@@ -423,20 +425,34 @@ def p_n_check_var_exists(p):
     if (not directory.Table[scope].varsTable.check_Existence(p[-2]) and not directory.Table['global'].varsTable.check_Existence(p[-2])):
         print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (p[-2], scope))
         p_error(-2)
-        
-def p_type_int(p):
-    'type_int : '
-    
-    global current_type
-    current_type = 'int'
-    p[0] = p[-1] # Return the value of the constant
-    
-def p_type_float(p):
-    'type_float : '
+
+def p_n_save_cteF(p):
+    'n_save_cteF : '
     
     global current_type
     current_type = 'float'
-    p[0] = p[-1] # Return the value of the constant
+    
+    value = p[-1]
+    if value in const_table:
+        addr = const_table[value]
+    else:
+        addr = Addr_Manager.get_Const_Float_Dir()
+        const_table[p[-1]] = addr
+    p[0] = addr # Return the value of the constant
+    
+def p_n_save_cteI(p):
+    'n_save_cteI : '
+    
+    global current_type
+    current_type = 'int'
+    
+    value = p[-1]
+    if value in const_table:
+        addr = const_table[value]
+    else:
+        addr = Addr_Manager.get_Const_Int_Dir()
+        const_table[p[-1]] = addr
+    p[0] = addr # Return the value of the constant
         
 def p_n_push_operand(p):
     'n_push_operand : '
@@ -534,6 +550,7 @@ def p_n_quad_add_substr(p):
                 
             #If theres no error: Create a temporal and add the quadruple
             result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            directory.Table[scope].add_Temp(result_type)
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
