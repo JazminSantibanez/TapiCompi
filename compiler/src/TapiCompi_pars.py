@@ -9,13 +9,14 @@ from libs.Functions_Directory import Functions_Directory
 from libs.Vars_Table import *
 from libs.Quadruple import Quadruple
 from libs.Address_Manager import Address_Manager
-import pandas as pd
+
 
 # ----------- Auxiliar variables ------------ #
 
-directory = None  # Variable that stores the directory of functions
+directory = Functions_Directory()  # Variable that stores the directory of functions
 
 scope = None # Variable that stores the current scope
+func = None # Variable that stores the name of the func called
 current_type = None # Variable that stores the current type of variables to store
 current_var = None # Variable that stores the current variable that is being declared
 function_type = None # Variable that stores the type of function that is being declared
@@ -49,17 +50,6 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    print(f' {"Cuadruplos:":^50s}')
-    print(f' {"*"*50}')        
-    global quadruples
-    lst = [q.to_list() for q in quadruples if q != None]
-    df = pd.DataFrame(lst, columns=['Operator', 'Left O.', 'Right O.', 'Result'])
-    df.index += 1
-    print(df)
-    
-    global directory
-    directory.print_Directory()
-    print('\n')
         
     for key in directory.Table:
         if key is not None:
@@ -173,6 +163,11 @@ def p_dec_func(p):
     'dec_func : FUNC aux_df n_save_func_type ID n_save_func lPAREN aux_df2 rPAREN n_func_start cuerpo n_quad_endfunc'
     # Reset variables address
     Addr_Manager.reset_local()
+    
+    # Reset the operators, operands and types stacks
+    stack_Operators.clear()
+    stack_Operands.clear()
+    stack_Types.clear()
     
 def p_aux_df(p):
     '''aux_df : VOID
@@ -346,7 +341,6 @@ def p_n_create_funcs_dict(p):
     scope = 'global'
     
     global directory
-    directory = Functions_Directory()
     directory.add_Function(scope, 'void', 0)    
     directory.Table[scope].add_Variable(p[-1], 'Program', 0)
 
@@ -410,8 +404,11 @@ def p_n_save_func(p):
     # to store the return value
     
     if (function_type != 'void'):
-        addr = Addr_Manager.get_Local_Dir(function_type)
-        directory.Table[scope].add_Variable(scope, function_type, addr)
+        if ( directory.Table['global'].varsTable.check_Existence(scope) == False):
+            addr = Addr_Manager.get_Global_Dir(function_type)
+            directory.Table['global'].add_Variable(scope, function_type, addr)
+        else:
+            print("Error: A global variable and a function can't share the same ID. \n ID in conflict: '%s'" % (scope))
     
 def p_n_add_param(p):
     'n_add_param : '
@@ -798,17 +795,17 @@ def p_n_quad_endfunc(p):
 def p_n_quad_func_era(p):
     'n_quad_func_era : '
     
-    global scope
+    global func
     global quadruples
     global quad_pointer
     
-    scope = p[-1]
+    func = p[-1]
     
-    if (  not directory.check_Existence(scope) ):
-        print("Error: Function  '%s' was called but does not exist" % scope)
+    if (  not directory.check_Existence(func) ):
+        print("Error: Function  '%s' was called but does not exist" % func)
         p_error(-2)
         
-    quadruples.append(Quadruple('ERA', scope, '', ''))
+    quadruples.append(Quadruple('ERA', func, '', ''))
     quad_pointer += 1
     
 def p_n_quad_func_param(p):
@@ -822,9 +819,9 @@ def p_n_quad_func_param(p):
     
     arg = stack_Operands.pop()
     arg_type = stack_Types.pop()
-    param_type = directory.get_Param_Type(scope, param_counter)
+    param_type = directory.get_Param_Type(func, param_counter)
     
-    print(scope, param_counter, arg_type, param_type)
+    print(func, param_counter, arg_type, param_type)
     
     if (param_type == 'None'):
         print("Error: Function '%s' was called with more arguments than the declared ones." % scope)
@@ -843,7 +840,7 @@ def p_n_func_check_params(p):
     
     global directory
     
-    if ( directory.get_Param_Type(scope, param_counter) != 'None' ):
+    if ( directory.get_Param_Type(func, param_counter) != 'None' ):
         print("Error: Function '%s' was called with less arguments than the declared ones." % scope)
         p_error(-2)
     
@@ -852,17 +849,27 @@ def p_n_quad_func_gosub(p):
     
     global quad_pointer
     global quadruples
-    global scope
+    global func
     
-    quadruples.append(Quadruple('GOSUB', scope, '', ''))
+    quadruples.append(Quadruple('GOSUB', func, '', ''))
     quad_pointer += 1
     
+    func_type = directory.Table[func].get_Type()
+    if (func_type != 'void'):
+        addr_t = Addr_Manager.get_Local_Dir(func_type)
+        directory.Table[func].add_Temp(func_type)
+        
+        quadruples.append(Quadruple('=', func, '', addr_t))
+        quad_pointer += 1
+        
+        stack_Operands.append(addr_t)
+        stack_Types.append(func_type)
     
 def p_n_quad_return(p):
     'n_quad_return : '
     
-    if (directory.get_Return_Type(scope) == 'void'):
-        print("Error: Function '%s' must not return a value" % scope)
+    if (directory.get_Return_Type(func) == 'void'):
+        print("Error: Function '%s' doesnt have a return type" % func)
         p_error(-2)
     
     global quad_pointer
@@ -873,7 +880,7 @@ def p_n_quad_return(p):
     result = stack_Operands.pop()
     result_type = stack_Types.pop()
     
-    if (result_type != directory.get_Return_Type(scope)):
+    if (result_type != directory.get_Return_Type(func)):
         print("Error: Type mismatch in return value")
         p_error(-2)
     

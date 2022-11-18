@@ -1,6 +1,7 @@
 import sys
-from src.TapiCompi_pars import parser
+from src.TapiCompi_pars import parser, quadruples, directory
 from src.TapiCompi_lex import Tokenize
+from vm.Virtual_Machine import Virtual_Machine
 
 def run(code):
     #Tokenize(code)
@@ -8,8 +9,15 @@ def run(code):
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
             print('\nCompilacion exitosa')
+            vm = Virtual_Machine(quadruples, directory)
+            vm.print_FuncsDirectory()
+            vm.print_Quadruples()
+            vm.run()
+                        
+        
         else:
             print('\nCompilacion fallida')
+            return
         
     except EOFError:
         print(EOFError)

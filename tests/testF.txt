@@ -17,6 +17,13 @@ func int fun2 (float size)
     #
 }
 
+func void fun3()
+{
+    var
+    float foca;
+    fun2(foca)
+}
+
 
 main()
 {

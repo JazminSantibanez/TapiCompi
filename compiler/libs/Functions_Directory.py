@@ -42,6 +42,9 @@ class Function_Info:
     def get_VarsTable(self):
         return self.varsTable
     
+    def get_Type(self):
+        return self.type
+    
     def add_Param(self, type):
         self.params.append(type)
     
@@ -60,6 +63,17 @@ class Function_Info:
                 self.num_bool_local += 1
         
         self.varsTable.add_Variable(name, type, dirV)
+        
+    def add_Temp( self, type):
+        match type:
+            case 'int':
+                self.num_int_temp += 1
+            case 'float':
+                self.num_float_temp += 1
+            case 'char':
+                self.num_char_temp += 1
+            case 'bool':
+                self.num_bool_temp += 1
         
 
 
