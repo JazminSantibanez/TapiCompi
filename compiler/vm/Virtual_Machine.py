@@ -36,10 +36,12 @@ class Virtual_Machine:
                 print('End of quadruples.')
                 return
             #print(f'> Op. Code: {quadruple.operator}')
+            
             match quadruple.operator:
                 case 'GOTO':
                     self.instruction_pointer = quadruple.result
                 
+                # -- Sequential statementes -- #
                 case 'PRINT':
                     if (isinstance(quadruple.result, int)):
                         print(memory.get_value(quadruple.result))
@@ -62,7 +64,10 @@ class Virtual_Machine:
                     memory.set_value(quadruple.result, value)
                     self.instruction_pointer += 1
                 
+                # -- Arithmetic operations -- #
                 case '+':
+                    # If operand is a constant, get value from const table
+                    # else, get value from current memory
                     if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
                         left = self.const_table[quadruple.left]
                     else:
@@ -73,8 +78,8 @@ class Virtual_Machine:
                         
                     else:
                         right = memory.get_value(quadruple.right)
-                    res = left + right
-                    memory.set_value(quadruple.result, res)
+                    
+                    memory.set_value(quadruple.result, left + right)
                     self.instruction_pointer += 1
                     
                 case '-':
@@ -88,8 +93,8 @@ class Virtual_Machine:
                         
                     else:
                         right = memory.get_value(quadruple.right)
-                    res = left - right
-                    memory.set_value(quadruple.result, res)
+                    
+                    memory.set_value(quadruple.result, left - right)
                     self.instruction_pointer += 1
                     
                 case '*':
@@ -103,8 +108,8 @@ class Virtual_Machine:
                         
                     else:
                         right = memory.get_value(quadruple.right)
-                    res = left * right
-                    memory.set_value(quadruple.result, res)
+                    
+                    memory.set_value(quadruple.result, left * right)
                     self.instruction_pointer += 1
                 
                 case '/':
@@ -123,9 +128,131 @@ class Virtual_Machine:
                         print('Error: Division by zero.')
                         return
                     
-                    res = left + right
-                    memory.set_value(quadruple.result, res)
+                    memory.set_value(quadruple.result, left / right)
                     self.instruction_pointer += 1
+                
+                # -- Relational operations -- #
+                case '>':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left > right)
+                    self.instruction_pointer += 1
+                    
+                case '<':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left < right)
+                    self.instruction_pointer += 1
+                    
+                case '>=':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left >= right)
+                    self.instruction_pointer += 1
+                    
+                case '<=':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left <= right)
+                    self.instruction_pointer += 1
+                
+                case '==':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left == right)
+                    self.instruction_pointer += 1
+                
+                case '!=':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left != right)
+                    self.instruction_pointer += 1
+                    
+                case '&':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left and right)
+                    self.instruction_pointer += 1
+                    
+                case '|':
+                    if (quadruple.left >= CONST_INT_START and quadruple.left <= CONST_FLOAT_END):
+                        left = self.const_table[quadruple.left]
+                    else:
+                        left = memory.get_value(quadruple.left)
+                        
+                    if (quadruple.right >= CONST_INT_START and quadruple.right <= CONST_FLOAT_END):
+                        right = self.const_table[quadruple.right]
+                        
+                    else:
+                        right = memory.get_value(quadruple.right)
+                    
+                    memory.set_value(quadruple.result, left or right)
+                    self.instruction_pointer += 1
+                
+                # -- Logical operations -- #
                 
                 case other:
                     print(f'Error: Operation code {quadruple.operator} not recognized.')

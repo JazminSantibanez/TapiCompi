@@ -51,10 +51,9 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-        
-    for key in directory.Table:
+    """ for key in directory.Table:
         if key is not None:
-            directory.Table[key].print_VarsTable() 
+            directory.Table[key].print_VarsTable()  """
     
 
 def p_aux_prog(p):

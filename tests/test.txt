@@ -1,9 +1,11 @@
-program q:
+program quesini:
+
+var int p;
 
 main()
 {
-    var
-    int A, B, C;
-    float f;
-    A = 'a'
+    var int q;
+    q = 6
+    p = 3
+    print( q == 6 | p >= 5)
 }

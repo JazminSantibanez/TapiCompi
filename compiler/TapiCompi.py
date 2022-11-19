@@ -8,11 +8,11 @@ def run(code):
     try:
         #Tokenize(data)
         if(parser.parse(data) == "Success"):
-            print('\nCompilacion exitosa')
+            #print('\nCompilacion exitosa')
             vm = Virtual_Machine(quadruples, directory, const_table)
-            vm.print_FuncsDirectory()
-            print('Constants: ', const_table)
-            vm.print_Quadruples()
+            #vm.print_FuncsDirectory()
+            #print('Constants: ', const_table)
+            #vm.print_Quadruples()
             vm.run()
                         
         
@@ -26,7 +26,7 @@ def run(code):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        print(sys.argv[1])
+        #print(sys.argv[1])
         data = open(sys.argv[1]).read()
         run(data)
     else:
