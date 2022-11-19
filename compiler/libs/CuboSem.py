@@ -7,7 +7,12 @@ import pandas as pd
 # To Do: Change types for enums
 
 
-dict_MultDiv = {
+dict_Mult = {
+    'int' : {'int': 'int', 'float': 'float'},
+    'float': {'int': 'float', 'float': 'float'},
+}
+
+dict_Div = {
     'int' : {'int': 'int', 'float': 'int'},
     'float': {'int': 'int', 'float': 'float'},
 }
@@ -41,8 +46,8 @@ dict_Assign = {
 
 Cubo_Sem = {
     # Arithmetic operators
-    '*': dict_MultDiv,
-    '/': dict_MultDiv,
+    '*': dict_Mult,
+    '/': dict_Div,
     '+': dict_SumRes,
     '-': dict_SumRes,
 

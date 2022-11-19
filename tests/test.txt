@@ -1,0 +1,11 @@
+program quesini:
+
+var int p;
+
+main()
+{
+    var int q;
+    q = 6
+    p = 3
+    print( q == 6 | p >= 5)
+}

@@ -157,4 +157,4 @@ Avances_Zips
 *tab.py
 *.out
 tests/debug.txt
-compiler/src/test.ipynb
+*.ipynb
