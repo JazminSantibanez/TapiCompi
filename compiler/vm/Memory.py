@@ -32,7 +32,7 @@ class Memory:
             self.local_bool[index] = value
         # Temporal variables
         elif ((virtual_address >= LOCAL_INT_TEMP_START and virtual_address <= LOCAL_INT_END)):
-            self.temp_int[index] = value
+            self.temp_int[index] = int(value)
         elif ((virtual_address >= LOCAL_FLOAT_TEMP_START and virtual_address <= LOCAL_FLOAT_END)):
             self.temp_float[index] = value
         elif ((virtual_address >= LOCAL_CHAR_TEMP_START and virtual_address <= LOCAL_CHAR_END)):

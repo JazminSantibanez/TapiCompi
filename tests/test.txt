@@ -5,7 +5,5 @@ main()
     var
     int A, B, C;
     float f;
-    f = 15.0
-    f = f + 0.2
-    print(f)
+    A = 'a'
 }

@@ -587,6 +587,7 @@ def p_n_quad_mult_div(p):
                 
             #If theres no error: Create a temporal and add the quadruple
             result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            directory.Table[scope].add_Temp(result_type)
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
@@ -625,6 +626,7 @@ def p_n_quad_compare(p):
                 
             #If theres no error: Create a temporal and add the quadruple
             result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            directory.Table[scope].add_Temp(result_type)
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
@@ -660,6 +662,7 @@ def p_n_quad_and_or(p):
                 
             #If theres no error: Create a temporal and add the quadruple
             result = Addr_Manager.get_Local_Temporal_Dir(result_type)
+            directory.Table[scope].add_Temp(result_type)
             
             # Create quadruple
             quadruples.append(Quadruple(operator, left_operand, right_operand, result))
