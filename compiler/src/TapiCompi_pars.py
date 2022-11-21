@@ -51,6 +51,7 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
+    directory.Table['global'].print_VarsTable()
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -881,7 +882,8 @@ def p_n_quad_func_gosub(p):
         addr_t = Addr_Manager.get_Local_Dir(func_type)
         directory.Table[func].add_Temp(func_type)
         
-        quadruples.append(Quadruple('=', func, '', addr_t))
+        addr = directory.Table['global'].varsTable.Table[func].get_DirV()
+        quadruples.append(Quadruple('=', addr, '', addr_t))
         quad_pointer += 1
         
         stack_Operands.append(addr_t)
@@ -907,7 +909,8 @@ def p_n_quad_return(p):
         print("Error: Type mismatch in return value")
         p_error(-2)
     
-    quadruples.append(Quadruple('RETURN', '', '', result))
+    addr = directory.Table['global'].varsTable.Table[scope].get_DirV()
+    quadruples.append(Quadruple('RETURN', addr, '', result))
     quad_pointer += 1
     
 

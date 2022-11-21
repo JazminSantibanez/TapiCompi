@@ -26,7 +26,8 @@ class Virtual_Machine:
                                     self.global_func.num_bool_temp)
         self.current_memory = self.global_memory # Memory pointer, points at global memory at the start
         self.stack_Contexts = deque() # Stack that saves the context of the functions. "Sleep" memories
-    
+        self.scope = self.global_func # Current scope is the global function at the start
+        
     # ----------- Helpful prints ------------ #
     
     def print_Quadruples(self):
@@ -216,6 +217,7 @@ class Virtual_Machine:
                 
                 case 'ERA': # Create new memory for function
                     # quad.left = function name
+                    self.scope = self.directory.Table[quadruple.left]
                     
                     self.stack_Contexts.append(Context(self.current_memory)) # Save current memory
                     func = self.directory.get_Function(quadruple.left)
@@ -255,11 +257,20 @@ class Virtual_Machine:
                     self.stack_Contexts[-1].save_IP(self.instruction_pointer)
                     self.instruction_pointer = self.directory.Table[quadruple.left].get_DirStart()
                     
-                case 'ENDFUNC': # Return to previous context
+                    
+                case 'RETURN': 
+                    # Assign return value to the global variable of the same name as the function
+                    self.instruction_pointer += 1
+                    addr = quadruple.left
+                    value = self.get_value(quadruple.result)
+                    self.set_value(addr, value)
+                    
+                case 'ENDFUNC': # Move back to previous context
+                    
                     self.current_memory = None
                     previous_context = self.stack_Contexts.pop()
                     self.current_memory = previous_context.get_Memory()
-                    self.instruction_pointer = previous_context.get_IP() + 1
+                    self.instruction_pointer = previous_context.get_IP() + 1    
                     
                 case other:
                     print(f'Error: Operation code {quadruple.operator} not recognized.')
