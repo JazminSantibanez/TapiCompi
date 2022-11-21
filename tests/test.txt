@@ -2,10 +2,14 @@ program quesini:
 
 var int p;
 
+func void fun1()
+{
+    print("en funcion1")
+}
+
 main()
 {
-    var int q;
-    p = 6
-    read(q)
-    print(q < p & q == 2)
+    print("En main")
+    fun1()
+    print("De vuelta a main.")
 }

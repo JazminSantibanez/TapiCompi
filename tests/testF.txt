@@ -14,7 +14,7 @@ func void fun1 ()
 
 func int fun2 (float size)
 {
-    #
+    return(6)
 }
 
 func void fun3()
@@ -28,6 +28,7 @@ func void fun3()
 main()
 {
     var int test, test2;
+    float f;
     test = 3
     read(test, test2)
     print(2 + 5, test, 'c', "queso")

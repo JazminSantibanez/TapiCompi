@@ -3,7 +3,11 @@ program quesito:
 
 main()
 {
-	# queso
-	var int A, B, C, D, H, I, J, K, M;
-	print( A * (B + C / D * (H+I) - J * K + M) )
+	var
+	int i;
+	i = 5
+	print(i < 4)
+	do {
+		print(i)
+	} while ( i < 4)
 }

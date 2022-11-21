@@ -38,7 +38,11 @@ class Virtual_Machine:
         self.directory.print_Directory()
         print('\n')
     
-    
+    def debug(self):
+        self.print_FuncsDirectory()
+        print('Constants: ', self.const_table, '\n')
+        self.print_Quadruples()
+
     # ----------- Execution ------------ #
     
     def get_value(self, virtual_addr):
@@ -62,7 +66,9 @@ class Virtual_Machine:
         # Constants must not be changed.
         
     
-    def run(self):
+    def run(self, debug):
+        if (debug):
+            self.debug()
         
         while (self.instruction_pointer < len(self.quadruples)):
             quadruple = self.quadruples[self.instruction_pointer]
@@ -74,6 +80,18 @@ class Virtual_Machine:
             match quadruple.operator:
                 case 'GOTO':
                     self.instruction_pointer = quadruple.result
+                
+                case 'GOTOF':
+                    if (not self.get_value(quadruple.left)):
+                        self.instruction_pointer = quadruple.result
+                    else:
+                        self.instruction_pointer += 1
+                    
+                case 'GOTOT':
+                    if (self.get_value(quadruple.left)):
+                        self.instruction_pointer = quadruple.result
+                    else:
+                        self.instruction_pointer += 1
                 
                 # -- Sequential statementes -- #
                 case 'PRINT':
@@ -172,6 +190,8 @@ class Virtual_Machine:
                     self.set_value(quadruple.result, left != right)
                     self.instruction_pointer += 1
                     
+                # -- Logical operations -- #
+                    
                 case '&':
                     left = self.get_value(quadruple.left)
                     right = self.get_value(quadruple.right)
@@ -186,7 +206,7 @@ class Virtual_Machine:
                     self.set_value(quadruple.result, left or right)
                     self.instruction_pointer += 1
                 
-                # -- Logical operations -- #
+                # -- # -- #
                 
                 case other:
                     print(f'Error: Operation code {quadruple.operator} not recognized.')

@@ -887,8 +887,9 @@ def p_n_quad_func_gosub(p):
 def p_n_quad_return(p):
     'n_quad_return : '
     
-    if (directory.get_Return_Type(func) == 'void'):
-        print("Error: Function '%s' doesnt have a return type" % func)
+    return_type = directory.get_Return_Type(scope)
+    if (return_type == 'void'):
+        print("Error: Function '%s' doesnt have a return type" % scope)
         p_error(-2)
     
     global quad_pointer
@@ -899,7 +900,7 @@ def p_n_quad_return(p):
     result = stack_Operands.pop()
     result_type = stack_Types.pop()
     
-    if (result_type != directory.get_Return_Type(func)):
+    if (result_type != return_type):
         print("Error: Type mismatch in return value")
         p_error(-2)
     
