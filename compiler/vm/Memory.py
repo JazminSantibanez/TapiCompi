@@ -14,7 +14,7 @@ class Memory:
         self.temp_char = np.empty(tc, dtype="U1")
         self.temp_bool = np.empty(tb, dtype=bool)
         
-    def set_value(self, virtual_address, value):
+    def set_value_local(self, virtual_address, value):
         index = get_Memory_Index(virtual_address)
         
         # Local/Global variables        
@@ -40,7 +40,7 @@ class Memory:
         elif ((virtual_address >= LOCAL_BOOL_TEMP_START and virtual_address <= LOCAL_BOOL_END)):
             self.temp_bool[index] = value
             
-    def get_value(self, virtual_address):
+    def get_value_local(self, virtual_address):
         index = get_Memory_Index(virtual_address)
          # Local/Global variables        
         if ((virtual_address >= GLOBAL_INT_START and virtual_address <= GLOBAL_INT_END) or 

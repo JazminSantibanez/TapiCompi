@@ -5,7 +5,7 @@ var int p;
 main()
 {
     var int q;
-    q = 6
-    p = 3
-    print( q == 6 | p >= 5)
+    p = 6
+    read(q)
+    print(q < p & q == 2)
 }

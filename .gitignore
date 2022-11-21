@@ -158,3 +158,4 @@ Avances_Zips
 *.out
 tests/debug.txt
 *.ipynb
+logs
