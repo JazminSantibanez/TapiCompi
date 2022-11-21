@@ -1,6 +1,9 @@
 import pandas as pd
+from collections import deque
+
 from libs.utils.Constants import *
 from vm.Memory import Memory
+from vm.Context import Context
 
 class Virtual_Machine:
     def __init__(self, quadruples, directory, const_table):
@@ -22,6 +25,7 @@ class Virtual_Machine:
                                     self.global_func.num_char_temp, 
                                     self.global_func.num_bool_temp)
         self.current_memory = self.global_memory # Memory pointer, points at global memory at the start
+        self.stack_Contexts = deque() # Stack that saves the context of the functions. "Sleep" memories
     
     # ----------- Helpful prints ------------ #
     
@@ -80,6 +84,8 @@ class Virtual_Machine:
             match quadruple.operator:
                 case 'GOTO':
                     self.instruction_pointer = quadruple.result
+                
+                # -- Conditional statements -- #
                 
                 case 'GOTOF':
                     if (not self.get_value(quadruple.left)):
@@ -206,8 +212,55 @@ class Virtual_Machine:
                     self.set_value(quadruple.result, left or right)
                     self.instruction_pointer += 1
                 
-                # -- # -- #
+                # -- Functions -- #
                 
+                case 'ERA': # Create new memory for function
+                    # quad.left = function name
+                    
+                    self.stack_Contexts.append(Context(self.current_memory)) # Save current memory
+                    func = self.directory.get_Function(quadruple.left)
+                    # Create activation record
+                    new_memory = Memory(
+                                        func.num_int_local,
+                                        func.num_float_local, 
+                                        func.num_char_local, 
+                                        func.num_bool_local,
+                                        func.num_int_temp, 
+                                        func.num_float_temp, 
+                                        func.num_char_temp, 
+                                        func.num_bool_temp)                    
+                    self.current_memory = new_memory
+                    
+                    self.instruction_pointer += 1
+                    
+                case 'PARAM': # Set parameter value
+                    # quad.left = parameter value
+                    # quad.right = parameter position
+                    value = self.get_value(quadruple.left)
+                    addr = int(quadruple.right[2:])
+                    
+                    match quadruple.result:
+                        case 'int':
+                            self.current_memory.local_int[addr] = value
+                        case 'float':
+                            self.current_memory.local_float[addr] = value
+                        case 'char':
+                            self.current_memory.local_char[addr] = value
+                        case 'bool':
+                            self.current_memory.local_bool[addr] = value
+                    
+                    self.instruction_pointer += 1
+                
+                case 'GOSUB': # Move IP to the function section
+                    self.stack_Contexts[-1].save_IP(self.instruction_pointer)
+                    self.instruction_pointer = self.directory.Table[quadruple.left].get_DirStart()
+                    
+                case 'ENDFUNC': # Return to previous context
+                    self.current_memory = None
+                    previous_context = self.stack_Contexts.pop()
+                    self.current_memory = previous_context.get_Memory()
+                    self.instruction_pointer = previous_context.get_IP() + 1
+                    
                 case other:
                     print(f'Error: Operation code {quadruple.operator} not recognized.')
                     self.instruction_pointer += 1

@@ -7,3 +7,9 @@ class Context:
         
     def save_IP(self, IP):
         self.saved_IP = IP
+        
+    def get_Memory(self):
+        return self.saved_memory
+    
+    def get_IP(self):
+        return self.saved_IP

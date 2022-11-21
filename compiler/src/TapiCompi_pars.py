@@ -6,7 +6,7 @@ from src.TapiCompi_lex import tokens
 import libs.CuboSem as CuboSem
 #from libs.CuboSem import *
 from libs.Functions_Directory import Functions_Directory
-from libs.Vars_Table import *
+from libs.Vars_Table import Vars_Table, Var_Info
 from libs.Quadruple import Quadruple
 from libs.Address_Manager import Address_Manager
 
@@ -50,10 +50,6 @@ def p_programa(p):
     programa : PROGRAM ID n_create_funcs_dict SEP_COLON aux_prog aux_prog2 MAIN n_save_func lPAREN rPAREN cuerpo
     '''
     p[0] = "Success"
-    
-    """ for key in directory.Table:
-        if key is not None:
-            directory.Table[key].print_VarsTable()  """
     
 
 def p_aux_prog(p):
@@ -416,7 +412,8 @@ def p_n_add_param(p):
     
     directory.add_Func_Param(scope, current_type)
     addr = Addr_Manager.get_Local_Dir(current_type)
-    directory.Table[scope].varsTable.add_Variable(p[-2], current_type, addr)
+    directory.Table[scope].add_Variable(p[-2], current_type, addr)
+    
     
 def p_n_check_var_exists(p):
     'n_check_var_exists : '
@@ -811,6 +808,12 @@ def p_n_quad_endfunc(p):
     quadruples.append(Quadruple('ENDFUNC', '', '', ''))
     quad_pointer += 1
     
+        
+    directory.Table[scope].print_VarsTable()
+    
+    # Delete varsTable and reset the scope
+    del directory.Table[scope].varsTable
+    
 def p_n_quad_func_era(p):
     'n_quad_func_era : '
     
@@ -840,17 +843,17 @@ def p_n_quad_func_param(p):
     arg_type = stack_Types.pop()
     param_type = directory.get_Param_Type(func, param_counter)
     
-    print(func, param_counter, arg_type, param_type)
+    #print(func, param_counter, arg_type, param_type)
     
     if (param_type == 'None'):
-        print("Error: Function '%s' was called with more arguments than the declared ones." % scope)
+        print("Error: Function '%s' was called with more arguments than the declared ones." % func)
         p_error(-2)
     
     if (param_type != arg_type):
-        print("Error: Type mismatch in parameter %d" % param_counter + 1)
+        print("Error: Type mismatch in parameter ", param_counter + 1)
         p_error(-2)
     
-    quadruples.append(Quadruple('PARAM', arg, 'P-'+str(param_counter), arg_type))
+    quadruples.append(Quadruple('PARAM', arg, 'p#'+str(param_counter), param_type))
     quad_pointer += 1
     param_counter += 1
     
@@ -860,7 +863,7 @@ def p_n_func_check_params(p):
     global directory
     
     if ( directory.get_Param_Type(func, param_counter) != 'None' ):
-        print("Error: Function '%s' was called with less arguments than the declared ones." % scope)
+        print("Error: Missing arguments for function '%s'" % func)
         p_error(-2)
     
 def p_n_quad_func_gosub(p):

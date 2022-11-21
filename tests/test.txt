@@ -1,15 +1,20 @@
 program quesini:
 
-var int p;
+var int p, z;
 
-func void fun1()
+func void fun1(int q)
 {
+    print(q)
     print("en funcion1")
+    print(z)
 }
 
 main()
 {
+    p = 3
+    z = 8
     print("En main")
-    fun1()
+    fun1(p)
     print("De vuelta a main.")
+    print(z)
 }

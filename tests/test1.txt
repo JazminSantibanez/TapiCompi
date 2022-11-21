@@ -5,9 +5,12 @@ main()
 {
 	var
 	int i;
-	i = 5
-	print(i < 4)
-	do {
-		print(i)
-	} while ( i < 4)
+	read(i)
+	if (i >= 5)
+	{
+		print ("i mayor o igual que 5")
+	}
+	else {
+		print("i menor que 5")
+	}
 }
