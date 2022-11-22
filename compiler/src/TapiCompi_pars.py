@@ -843,7 +843,6 @@ def p_n_quad_func_param(p):
     global stack_Types
     global quadruples
     
-    print (p[-1])
     arg = stack_Operands.pop()
     arg_type = stack_Types.pop()
     param_type = directory.get_Param_Type(func, param_counter)
