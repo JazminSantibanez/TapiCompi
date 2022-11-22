@@ -9,32 +9,25 @@ Se desarrolló la propuesta final del proyecto la cual es la definición del len
 ## Avance 1
 Fecha de entrega: Lunes 3 de Octubre de 2022
 
-Progreso hasta entrega:
-- Lexico terminado
-- Parser: 2 diagramas de 26 aprox.
-
-* Completo.
+Inicié la codificación del léxico y sintáxis en PLY para python. Terminé el léxico pero sólo hice ele equivalente de 2 diagramas de sintaxis porque no tuve mucho tiempo durante la semana.
 
 ## Avance 2 - Cubo semántico y semántica básica de variables
 Fecha de entrega: Miércoles 12 de Octubre de 2022
 
-Progreso hasta entrega:
-- Cubo semántico terminado (se usó un diccionario de diccionarios y una función para revisar el match de los tipos).
-- Se arreglaron detalles en tokens y gramática formal (ya están terminados)
-- Se comenzaron a escribir consideraciones básicas para la semántica.
-
-Funciona el cubo semántico.
+Fecha de entrega: Miércoles 12 de Octubre de 2022
+Terminé de escribir la gramática formal en código y realicé algunos ajustes en los tokens. Además, implementé el cubo semántico (usando un diccionario de diccionarios y una función para poder revisar el emparejamiento de los tipos).
 
 ## Avance 3
 Fecha de entrega: Lunes 17 de Octubre de 2022
 
-Correcion de gramática en expresiones.
-Funciona sin warnings.
+Se corrigieron todos los errores de recursión y shift/reduce de la gramática. Se pueden leer archivos de prueba y hacer el análisis sintáctico sin warnings.
+Se comenzó a hacer un boceto del directorio de funciones y tablas de variables pero no se pasó a código por el momento.
 
-Se realizaron pruebas y compila exitosamente.
 
 ## Avance 4
 Fecha de entrega: Viernes 4 de Noviembre de 2022
+
+Esta semana trabajé en el desarrollo del directorio de funciones y tablas de variables. 
 
 Declaración de variables y funciones funciona correctamente (detecta doble declaracion).
 
@@ -45,15 +38,17 @@ Se generan cuadruplos correctos para expresiones aritmeticas básicas (sumar, re
 ## Avance 5
 Fecha de entrega: Lunes 7 de Noviembre de 2022
 
-Se generan cuadruplos correctos para condicionales y ciclos: if, while.
+Se añadieron los puntos neurálgicos para decisiones (if) y ciclos (while). Se producen cuádruplos correctos para los estatutos mencionados. 
+Modifiqué el formato de impresión de los cuadruplos para que se mostraran de forma más organizada.
+Terminé los puntos neurálgicos y generación de cuádruplos para los operadores lógicos y relacionales.
+
 
 ## Avance 6
 Fecha de entrega: Martes 15 de Noviembre de 2022
 
-Se agrego do-while al lexico y semmántica. Se generan cuádruplos para este estatuto.
-
+Se agregó do-while al lexico y semántica. Se generan cuádruplos para este estatuto.
 Se generan cuadruplos correctos para las funciones, así como la dirección de las funciones.
-Se comenzó la implementación del segmento de memoria y del manejo de direcciones.
+Comencé la implementación del segmento de memoria (utilizando una clase que genera arreglos para cada tipo local y temporal, recibiendo como parámetro la cantidad de cada recurso) y del manejo de direcciones virtuales.
 
 ## Avance 7
 Fecha de entrega: Lunes 21 de Noviembre de 2022
