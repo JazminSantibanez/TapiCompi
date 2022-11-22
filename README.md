@@ -42,7 +42,12 @@ Se generan cuadruplos correctos para expresiones aritmeticas básicas (sumar, re
 Se generan cuadruplos correctos para condicionales y ciclos: if, while.
 
 ## Avance 6
-Se agrego do-while al lexico y semmántica. Se generan cuádruplos para este estatuto.
+Se agrego do-while al lexico y semántica. Se generan cuádruplos para este estatuto.
 
 Se generan cuadruplos correctos para las funciones, así como la dirección de las funciones.
 Se comenzó la implementación del segmento de memoria y del manejo de direcciones.
+
+## Avance 7
+Se creó la tabla de constantes (diccionario optimizado a busqueda valor:dirección), se integró al análisis semántico para detectar constantes y guardarlas. Se añadió el uso de direcciones virtuales dfe las constantes para la máquina virtual.
+Implementación de máquina virtual para los códigos de operación de expresiones aritméticas ( y lógicas y relaciones), de estatutos secuenciales, ciclos, decisiones y módulos (con recursión).
+Se desarróllo la memoria y el contexto en la máquina virtual para poder hacer cambio de memorias entre llamadas de funciones.
