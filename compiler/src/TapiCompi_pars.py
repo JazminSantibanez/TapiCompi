@@ -207,7 +207,6 @@ def p_estatuto(p):
                 | condicion
                 | ciclo_while
                 | ciclo_do_while
-                | ciclo_for
                 | COMENTARIO'''
 
 ## -- <return> --
@@ -260,14 +259,6 @@ def p_ciclo_while(p):
 ## -- <ciclo_do_while> --
 def p_ciclo_do_while(p):
     'ciclo_do_while : DO n_do_while_start lBRACE bloque rBRACE WHILE lPAREN h_exp rPAREN n_quad_do_while_true'
-
-## -- <ciclo_for> --
-def p_ciclo_for(p):
-    'ciclo_for : FOR lPAREN ID OP_ASSIGN h_exp TO h_exp rPAREN aux_ciclofor bloque'
-
-def p_aux_ciclofor(p):
-    '''aux_ciclofor : STEP h_exp
-                    | empty'''
 
 
 ## -- <h_exp> --
