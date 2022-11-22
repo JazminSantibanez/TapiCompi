@@ -82,8 +82,8 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    '''aux_dv : aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON
-                | aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON aux_dv
+    '''aux_dv : aux_dv2 n_save_type aux_dv3
+                | aux_dv2 n_save_type aux_dv3 aux_dv
     '''
     
 def p_aux_dv2 (p):

@@ -15,7 +15,7 @@ func int factorial(int x)
 
 main()
 {
-    var int a;
+    var int a
     read(a)
     print("Factorial: ", factorial(a))
 }
