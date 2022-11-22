@@ -3,7 +3,14 @@ program quesito:
 
 main()
 {
-	# queso
-	var int A, B, C, D, H, I, J, K, M;
-	print( A * (B + C / D * (H+I) - J * K + M) )
+	var
+	int i;
+	read(i)
+	if (i >= 5)
+	{
+		print ("i mayor o igual que 5")
+	}
+	else {
+		print("i menor que 5")
+	}
 }

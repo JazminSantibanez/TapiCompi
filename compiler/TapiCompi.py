@@ -10,10 +10,7 @@ def run(code):
         if(parser.parse(data) == "Success"):
             #print('\nCompilacion exitosa')
             vm = Virtual_Machine(quadruples, directory, const_table)
-            #vm.print_FuncsDirectory()
-            #print('Constants: ', const_table)
-            #vm.print_Quadruples()
-            vm.run()
+            vm.run(False)
                         
         
         else:

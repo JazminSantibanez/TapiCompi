@@ -44,6 +44,9 @@ class Function_Info:
     
     def get_Type(self):
         return self.type
+
+    def get_DirStart(self):
+        return self.dirStart
     
     def add_Param(self, type):
         self.params.append(type)

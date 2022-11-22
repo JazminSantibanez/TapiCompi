@@ -6,7 +6,7 @@ from src.TapiCompi_lex import tokens
 import libs.CuboSem as CuboSem
 #from libs.CuboSem import *
 from libs.Functions_Directory import Functions_Directory
-from libs.Vars_Table import *
+from libs.Vars_Table import Vars_Table, Var_Info
 from libs.Quadruple import Quadruple
 from libs.Address_Manager import Address_Manager
 
@@ -51,10 +51,7 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    """ for key in directory.Table:
-        if key is not None:
-            directory.Table[key].print_VarsTable()  """
-    
+    #directory.Table['global'].print_VarsTable()
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -85,8 +82,8 @@ def p_dec_var(p):
     ' dec_var : VAR aux_dv'
 
 def p_aux_dv(p):
-    '''aux_dv : aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON
-                | aux_dv2 n_save_type aux_dv3 SEP_SEMICOLON aux_dv
+    '''aux_dv : aux_dv2 n_save_type aux_dv3
+                | aux_dv2 n_save_type aux_dv3 aux_dv
     '''
     
 def p_aux_dv2 (p):
@@ -189,7 +186,7 @@ def p_aux_params(p):
 
 ## -- <call_func>
 def p_call_func(p):
-    'call_func : ID n_quad_func_era lPAREN aux_cf n_func_check_params rPAREN n_quad_func_gosub'
+    'call_func : ID n_quad_func_era lPAREN n_false_bottom_start aux_cf n_func_check_params rPAREN n_false_bottom_end n_quad_func_gosub'
 
 def p_aux_cf(p):
     '''aux_cf : h_exp n_quad_func_param aux_cf2
@@ -416,7 +413,8 @@ def p_n_add_param(p):
     
     directory.add_Func_Param(scope, current_type)
     addr = Addr_Manager.get_Local_Dir(current_type)
-    directory.Table[scope].varsTable.add_Variable(p[-2], current_type, addr)
+    directory.Table[scope].add_Variable(p[-2], current_type, addr)
+    
     
 def p_n_check_var_exists(p):
     'n_check_var_exists : '
@@ -811,6 +809,12 @@ def p_n_quad_endfunc(p):
     quadruples.append(Quadruple('ENDFUNC', '', '', ''))
     quad_pointer += 1
     
+        
+    #directory.Table[scope].print_VarsTable() 
+    
+    # Delete varsTable and reset the scope
+    del directory.Table[scope].varsTable
+    
 def p_n_quad_func_era(p):
     'n_quad_func_era : '
     
@@ -827,6 +831,9 @@ def p_n_quad_func_era(p):
     quadruples.append(Quadruple('ERA', func, '', ''))
     quad_pointer += 1
     
+    global param_counter
+    param_counter = 0
+    
 def p_n_quad_func_param(p):
     'n_quad_func_param : '
     
@@ -840,17 +847,17 @@ def p_n_quad_func_param(p):
     arg_type = stack_Types.pop()
     param_type = directory.get_Param_Type(func, param_counter)
     
-    print(func, param_counter, arg_type, param_type)
+    #print(func, param_counter, arg_type, param_type)
     
     if (param_type == 'None'):
-        print("Error: Function '%s' was called with more arguments than the declared ones." % scope)
+        print("Error: Function '%s' was called with more arguments than the declared ones." % func)
         p_error(-2)
     
     if (param_type != arg_type):
-        print("Error: Type mismatch in parameter %d" % param_counter + 1)
+        print("Error: Type mismatch in parameter ", param_counter + 1)
         p_error(-2)
     
-    quadruples.append(Quadruple('PARAM', arg, 'P-'+str(param_counter), arg_type))
+    quadruples.append(Quadruple('PARAM', arg, 'p#'+str(param_counter), param_type))
     quad_pointer += 1
     param_counter += 1
     
@@ -860,7 +867,7 @@ def p_n_func_check_params(p):
     global directory
     
     if ( directory.get_Param_Type(func, param_counter) != 'None' ):
-        print("Error: Function '%s' was called with less arguments than the declared ones." % scope)
+        print("Error: Missing arguments for function '%s'" % func)
         p_error(-2)
     
 def p_n_quad_func_gosub(p):
@@ -875,10 +882,11 @@ def p_n_quad_func_gosub(p):
     
     func_type = directory.Table[func].get_Type()
     if (func_type != 'void'):
-        addr_t = Addr_Manager.get_Local_Dir(func_type)
-        directory.Table[func].add_Temp(func_type)
+        addr_t = Addr_Manager.get_Local_Temporal_Dir(func_type)
+        directory.Table[scope].add_Temp(func_type)
         
-        quadruples.append(Quadruple('=', func, '', addr_t))
+        addr = directory.Table['global'].varsTable.Table[func].get_DirV()
+        quadruples.append(Quadruple('=', addr, '', addr_t))
         quad_pointer += 1
         
         stack_Operands.append(addr_t)
@@ -887,8 +895,9 @@ def p_n_quad_func_gosub(p):
 def p_n_quad_return(p):
     'n_quad_return : '
     
-    if (directory.get_Return_Type(func) == 'void'):
-        print("Error: Function '%s' doesnt have a return type" % func)
+    return_type = directory.get_Return_Type(scope)
+    if (return_type == 'void'):
+        print("Error: Function '%s' doesnt have a return type" % scope)
         p_error(-2)
     
     global quad_pointer
@@ -899,11 +908,12 @@ def p_n_quad_return(p):
     result = stack_Operands.pop()
     result_type = stack_Types.pop()
     
-    if (result_type != directory.get_Return_Type(func)):
+    if (result_type != return_type):
         print("Error: Type mismatch in return value")
         p_error(-2)
     
-    quadruples.append(Quadruple('RETURN', '', '', result))
+    addr = directory.Table['global'].varsTable.Table[scope].get_DirV()
+    quadruples.append(Quadruple('RETURN', result, '', addr))
     quad_pointer += 1
     
 
