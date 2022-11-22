@@ -4,15 +4,15 @@ from libs.utils.Constants import *
 
 class Memory:
     def __init__(self, li, lf, lc, lb, ti, tf, tc, tb):
-        self.local_int = np.empty(li, dtype=int)
-        self.local_float = np.empty(lf, dtype=float)
-        self.local_char = np.empty(lc, dtype="U1")
-        self.local_bool = np.empty(lb, dtype=bool)
+        self.local_int = np.zeros(li, dtype=int)
+        self.local_float = np.zeros(lf, dtype=float)
+        self.local_char = np.zeros(lc, dtype="U1")
+        self.local_bool = np.zeros(lb, dtype=bool)
         
-        self.temp_int = np.empty(ti, dtype=int)
-        self.temp_float = np.empty(tf, dtype=float)
-        self.temp_char = np.empty(tc, dtype="U1")
-        self.temp_bool = np.empty(tb, dtype=bool)
+        self.temp_int = np.zeros(ti, dtype=int)
+        self.temp_float = np.zeros(tf, dtype=float)
+        self.temp_char = np.zeros(tc, dtype="U1")
+        self.temp_bool = np.zeros(tb, dtype=bool)
         
     def set_value_local(self, virtual_address, value):
         index = get_Memory_Index(virtual_address)
@@ -32,7 +32,7 @@ class Memory:
             self.local_bool[index] = value
         # Temporal variables
         elif ((virtual_address >= LOCAL_INT_TEMP_START and virtual_address <= LOCAL_INT_END)):
-            self.temp_int[index] = int(value)
+            self.temp_int[index] = value
         elif ((virtual_address >= LOCAL_FLOAT_TEMP_START and virtual_address <= LOCAL_FLOAT_END)):
             self.temp_float[index] = value
         elif ((virtual_address >= LOCAL_CHAR_TEMP_START and virtual_address <= LOCAL_CHAR_END)):

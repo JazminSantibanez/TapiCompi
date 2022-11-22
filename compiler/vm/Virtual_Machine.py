@@ -217,9 +217,7 @@ class Virtual_Machine:
                 
                 case 'ERA': # Create new memory for function
                     # quad.left = function name
-                    self.scope = self.directory.Table[quadruple.left]
                     
-                    self.stack_Contexts.append(Context(self.current_memory)) # Save current memory
                     func = self.directory.get_Function(quadruple.left)
                     # Create activation record
                     new_memory = Memory(
@@ -230,8 +228,10 @@ class Virtual_Machine:
                                         func.num_int_temp, 
                                         func.num_float_temp, 
                                         func.num_char_temp, 
-                                        func.num_bool_temp)                    
-                    self.current_memory = new_memory
+                                        func.num_bool_temp)
+                    # Put the activation record in the context stack 
+                    # because is the next in  line to be used.
+                    self.stack_Contexts.append(Context(new_memory))
                     
                     self.instruction_pointer += 1
                     
@@ -241,33 +241,47 @@ class Virtual_Machine:
                     value = self.get_value(quadruple.left)
                     addr = int(quadruple.right[2:])
                     
+                    new_memory = self.stack_Contexts[-1].get_Memory()
+                    # Use the memory at the top of the stack,. without popping it.
+                    
                     match quadruple.result:
                         case 'int':
-                            self.current_memory.local_int[addr] = value
+                            new_memory.local_int[addr] = value
                         case 'float':
-                            self.current_memory.local_float[addr] = value
+                            new_memory.local_float[addr] = value
                         case 'char':
-                            self.current_memory.local_char[addr] = value
+                            new_memory.local_char[addr] = value
                         case 'bool':
-                            self.current_memory.local_bool[addr] = value
+                            new_memory.local_bool[addr] = value
                     
                     self.instruction_pointer += 1
                 
                 case 'GOSUB': # Move IP to the function section
+                    # Get the new context
+                    new_context = self.stack_Contexts.pop()
+                    
+                    # "Sleep" the current context and push it to the stack
+                    self.stack_Contexts.append(Context(self.current_memory))
+                    
+                    self.current_memory = new_context.get_Memory()
+                    
                     self.stack_Contexts[-1].save_IP(self.instruction_pointer)
                     self.instruction_pointer = self.directory.Table[quadruple.left].get_DirStart()
-                    
+                    self.scope = self.directory.Table[quadruple.left]
                     
                 case 'RETURN': 
                     # Assign return value to the global variable of the same name as the function
-                    self.instruction_pointer += 1
-                    addr = quadruple.left
-                    value = self.get_value(quadruple.result)
+                    
+                    value = self.get_value(quadruple.left)
+                    addr = quadruple.result
                     self.set_value(addr, value)
+                    
+                    previous_context = self.stack_Contexts.pop()
+                    self.current_memory = previous_context.get_Memory()
+                    self.instruction_pointer = previous_context.get_IP() + 1 
                     
                 case 'ENDFUNC': # Move back to previous context
                     
-                    self.current_memory = None
                     previous_context = self.stack_Contexts.pop()
                     self.current_memory = previous_context.get_Memory()
                     self.instruction_pointer = previous_context.get_IP() + 1    

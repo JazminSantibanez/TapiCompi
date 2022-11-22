@@ -51,7 +51,7 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    directory.Table['global'].print_VarsTable()
+    #directory.Table['global'].print_VarsTable()
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -186,7 +186,7 @@ def p_aux_params(p):
 
 ## -- <call_func>
 def p_call_func(p):
-    'call_func : ID n_quad_func_era lPAREN aux_cf n_func_check_params rPAREN n_quad_func_gosub'
+    'call_func : ID n_quad_func_era lPAREN n_false_bottom_start aux_cf n_func_check_params rPAREN n_false_bottom_end n_quad_func_gosub'
 
 def p_aux_cf(p):
     '''aux_cf : h_exp n_quad_func_param aux_cf2
@@ -810,7 +810,7 @@ def p_n_quad_endfunc(p):
     quad_pointer += 1
     
         
-    directory.Table[scope].print_VarsTable()
+    #directory.Table[scope].print_VarsTable() 
     
     # Delete varsTable and reset the scope
     del directory.Table[scope].varsTable
@@ -831,6 +831,9 @@ def p_n_quad_func_era(p):
     quadruples.append(Quadruple('ERA', func, '', ''))
     quad_pointer += 1
     
+    global param_counter
+    param_counter = 0
+    
 def p_n_quad_func_param(p):
     'n_quad_func_param : '
     
@@ -840,6 +843,7 @@ def p_n_quad_func_param(p):
     global stack_Types
     global quadruples
     
+    print (p[-1])
     arg = stack_Operands.pop()
     arg_type = stack_Types.pop()
     param_type = directory.get_Param_Type(func, param_counter)
@@ -879,8 +883,8 @@ def p_n_quad_func_gosub(p):
     
     func_type = directory.Table[func].get_Type()
     if (func_type != 'void'):
-        addr_t = Addr_Manager.get_Local_Dir(func_type)
-        directory.Table[func].add_Temp(func_type)
+        addr_t = Addr_Manager.get_Local_Temporal_Dir(func_type)
+        directory.Table[scope].add_Temp(func_type)
         
         addr = directory.Table['global'].varsTable.Table[func].get_DirV()
         quadruples.append(Quadruple('=', addr, '', addr_t))
@@ -910,7 +914,7 @@ def p_n_quad_return(p):
         p_error(-2)
     
     addr = directory.Table['global'].varsTable.Table[scope].get_DirV()
-    quadruples.append(Quadruple('RETURN', addr, '', result))
+    quadruples.append(Quadruple('RETURN', result, '', addr))
     quad_pointer += 1
     
 
