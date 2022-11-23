@@ -4,27 +4,13 @@ program quesito:
 main()
 {
 	var
-	int A, B, C, D;
-
-	if (A + B > C * D)
+	int n, i
+	i = 1
+	print("Conteo del 1 al n")
+	read(n)
+	while (i <= n)
 	{
-		A = B + D
+		print( i)
+		i = i + 1
 	}
-	else
-	{
-		A = D - C
-	}
-	B = A * C + D
-
-	#A = B * (C / (D + E * F) * G + H - I (J + K) - M ) + P;
-
-	#if (A + B > C * D)
-	#{
-	#	A = B + C;
-	#}
-	#else
-	#{
-	#	B = C - D
-	#}
-	#D = A + B;
 }
