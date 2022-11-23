@@ -10,7 +10,7 @@ main()
 	read(n)
 	while (i <= n)
 	{
-		print( i)
+		print(i)
 		i = i + 1
 	}
 }
