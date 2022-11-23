@@ -76,6 +76,10 @@ class Virtual_Machine:
             self.debug()
         
         while (self.instruction_pointer < len(self.quadruples)):
+            if (len(self.stack_Contexts) >= 200):
+                raise Exception('Error: Calls Stack Overflow.')
+                break
+            
             quadruple = self.quadruples[self.instruction_pointer]
             if quadruple == None:
                 print('End of quadruples.')

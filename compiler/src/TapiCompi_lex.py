@@ -43,9 +43,6 @@ reserved = {
     'while' : 'WHILE',
     'do' : 'DO',
     
-    'for' : 'FOR',
-    'to' : 'TO',
-    'step' : 'STEP',
 }
 
 # Tokens
@@ -61,7 +58,7 @@ tokens = [
     'lPAREN', 'rPAREN', ## ()
     'lBRACE', 'rBRACE', ## {}
     'lBRACKET', 'rBRACKET', ## []
-    'SEP_SEMICOLON', ## ;   
+    #'SEP_SEMICOLON', ## ;   
     'SEP_COMMA', ## ,
     'SEP_COLON', ## :
     
@@ -100,7 +97,7 @@ t_rBRACE = r'\}'
 t_lBRACKET = r'\['
 t_rBRACKET = r'\]'
 
-t_SEP_SEMICOLON = r';'
+#t_SEP_SEMICOLON = r';'
 t_SEP_COMMA = r','
 t_SEP_COLON = r'\:'
 
@@ -120,12 +117,12 @@ def t_ID(t):
     return t
 
 def t_CTE_F(t):
-    r'\d+\.\d+'
+    r'-?\d+\.\d+'
     t.value = float(t.value)
     return t
 
 def t_CTE_I(t):
-    r'[0-9]+'
+    r'-?\d+'
     t.value = int(t.value)
     return t
 

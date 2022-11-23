@@ -1,17 +1,13 @@
 program quesini:
 
-func int fun1(int q, int z)
+func int fun1(int q)
 {
-    print("en funcion1")
-    return(q + z)
+    fun1(q)
 }
 
 main()
 {
-    var int a, b;
+    var int a, b
     a = 1
-    b = 2
-    print("En main")
-    print(fun1(a, b))
-    print("De vuelta a main.")
+    fun1(a)
 }
