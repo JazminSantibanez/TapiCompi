@@ -1,5 +1,10 @@
 # TapiCompi
  Proyecto final Diseño de Compiladores
+ 
+ # Video Demo
+ [![TapiCompi video demo ](https://img.youtube.com/vi/iSO22cvj0_Q/0.jpg)](https://www.youtube.com/watch?v=iSO22cvj0_Q )
+ 
+ # Log de Avances
 
 ## Avance 0 - Propuesta  Final
 Fecha de entrega: Sábado 8 de Octubre de 2022
