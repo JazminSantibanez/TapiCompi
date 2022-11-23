@@ -2,7 +2,7 @@
  Proyecto final Diseño de Compiladores
  
  # Video Demo
- [![TapiCompi video demo ](https://img.youtube.com/vi/iSO22cvj0_Q/0.jpg)](https://www.youtube.com/watch?v=iSO22cvj0_Q )
+[![Watch the video](https://img.youtube.com/vi/iSO22cvj0_Q/maxresdefault.jpg)](https://youtu.be/iSO22cvj0_Q)
  
  # Log de Avances
 
