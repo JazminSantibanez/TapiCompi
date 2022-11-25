@@ -940,7 +940,6 @@ def p_n_quad_return(p):
 def p_n_reserve_addresses(p):
     'n_reserve_addresses : '
     
-    print("Reserving addresses")
     var = directory.Table[scope].varsTable.Table[current_var]
     var_dims = var.get_NumDimensions()
     if ( var_dims == 1): # 1D array, reserve n - 1 addresses where n is the size of the array

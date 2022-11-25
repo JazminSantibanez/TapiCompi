@@ -121,7 +121,7 @@ class Virtual_Machine:
                 # -- Sequential statementes -- #
                 case 'PRINT':
                     if (isinstance(quadruple.result, int) or quadruple.result[0] == '('):
-                        print(self.get_value(quadruple.result))                        
+                        print(self.get_value(quadruple.result), end="")                 
                     else:
                         print(quadruple.result[1:-1])
                     
