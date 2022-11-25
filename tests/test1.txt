@@ -1,10 +1,21 @@
-# queso
 program quesito:
+
+var 
+float z
+
+func void fun1 ()
+{
+    var int queso
+    queso = 3
+}
+
+# queso
 
 main()
 {
 	var
 	int i
+	print("Ingresa un número")
 	read(i)
 	if (i >= 5)
 	{

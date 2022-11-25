@@ -113,8 +113,15 @@ def p_tipo_s(p):
               | CHAR
               | BOOL'''
     p[0] = p[1] # Pass the token to the parent rule
-
-
+    
+def p_CTE_BOOL(p):
+    '''CTE_BOOL : TRUE
+                | FALSE'''
+    if p[1] == 'true':
+        p[0] = True
+    else:
+        p[0] = False
+        
 # -- <tipo_c> --
 def p_tipo_c(p):
     '''tipo_c : DATAFRAME
@@ -133,7 +140,7 @@ def p_aux_arr(p):
 
 # -- <call_var> --
 def p_call_var(p):
-    'call_var : ID aux_cv n_check_var_exists'
+    'call_var : ID n_check_var_exists aux_cv '
    
     global current_type
     if (directory.Table[scope].varsTable.check_Existence(p[1])):
@@ -306,8 +313,10 @@ def p_factor(p):
     '''factor : lPAREN n_false_bottom_start h_exp rPAREN n_false_bottom_end
               | CTE_I n_save_cteI n_push_operand
               | CTE_F n_save_cteF n_push_operand
+              | CTE_BOOL n_save_cteB n_push_operand
               | call_var n_push_operand
               | call_func'''
+            
     
 def p_empty(p):
     'empty :'
@@ -410,8 +419,11 @@ def p_n_add_param(p):
 def p_n_check_var_exists(p):
     'n_check_var_exists : '
     
-    if (not directory.Table[scope].varsTable.check_Existence(p[-2]) and not directory.Table['global'].varsTable.check_Existence(p[-2])):
-        print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (p[-2], scope))
+    global current_var
+    current_var = p[-1]
+    
+    if (not directory.Table[scope].varsTable.check_Existence(current_var) and not directory.Table['global'].varsTable.check_Existence(current_var)):
+        print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (current_var, scope))
         p_error(-2)
 
 def p_n_save_cteF(p):
@@ -425,6 +437,20 @@ def p_n_save_cteF(p):
         addr = const_table[value]
     else:
         addr = Addr_Manager.get_Const_Float_Dir()
+        const_table[p[-1]] = addr
+    p[0] = addr # Return the value of the constant
+    
+def p_n_save_cteB(p):
+    'n_save_cteB : '
+    
+    global current_type
+    current_type = 'bool'
+    
+    value = p[-1]
+    if value in const_table:
+        addr = const_table[value]
+    else:
+        addr = Addr_Manager.get_Const_Bool_Dir()
         const_table[p[-1]] = addr
     p[0] = addr # Return the value of the constant
     
