@@ -8,11 +8,11 @@
             "name": "Python: archivo actual",
             "type": "python",
             "request": "launch",
-            "program": "C:\\Users\\Jazyd\\Documents\\Escuela\\Diseño de Compiladores\\TapiCompi\\compiler\\TapiCompi.py",
+            "program": "${workspaceFolder}\\compiler\\TapiCompi.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "C:\\Users\\Jazyd\\Documents\\Escuela\\Diseño de Compiladores\\TapiCompi\\tests\\test.txt"
+                "${workspaceFolder}\\Examples\\Find.tapi"
             ]
         }
 

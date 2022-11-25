@@ -1,0 +1,38 @@
+program FindVector:
+
+var
+int V[8]
+
+func void Find(int x, int size){
+    var int i
+    bool found 
+    found = false
+    i = 0
+
+    while ( i < size){
+        if (V[i] == x)
+        print ("Valor encontrado en la posicion :", i)
+        found = True
+    }
+
+    if (found == False){
+        print("El valor no esta en el arreglo")
+    }
+}
+
+main()
+{
+    int x
+    V[0] = 3
+    V[1] = 6
+    V[2] = 13
+    V[3] = 23
+    V[4] = 9
+    V[5] = 8
+    V[6] = 10
+    V[7] = 0
+    
+    print("Ingresa el numero a buscar: ")
+    read(x)
+
+}

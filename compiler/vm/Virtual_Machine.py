@@ -36,6 +36,7 @@ class Virtual_Machine:
         lst = [q.to_list() for q in self.quadruples if q != None]
         df = pd.DataFrame(lst, columns=['Operator', 'Left O.', 'Right O.', 'Result'])
         df.index += 1
+        pd.set_option('display.max_rows', None)
         print(df)
         print(f' {"~"*40}')
         
@@ -123,7 +124,11 @@ class Virtual_Machine:
                     if (isinstance(quadruple.result, int) or quadruple.result[0] == '('):
                         print(self.get_value(quadruple.result), end="")                 
                     else:
-                        print(quadruple.result[1:-1], end="")
+                        string = quadruple.result[1:-1]
+                        if (string == '\\n'):
+                            print("\n", end="")
+                        else:
+                            print(quadruple.result[1:-1], end="")
                     
                     self.instruction_pointer += 1
                     

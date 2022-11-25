@@ -1,5 +1,19 @@
 program Factorial:
 
+func int factorialC(int x)
+{
+    var int i, fact
+
+    fact = 1
+    i = 1
+    while ( i < x + 1)
+    {
+       fact = fact * i
+       i = i + 1
+    }
+    return (fact)
+}
+
 func int factorialR(int x)
 {
     #print("Inside factorial with x =", x)
@@ -16,6 +30,9 @@ func int factorialR(int x)
 main()
 {
     var int a
+    print("Ingresa un numero: ")
     read(a)
-    print("Factorial de ", a, ": ", factorialR(a))
+    print("El factorial de ", a, " es: ", "\n")
+    print(" - Ciclico: ", factorialC(a), "\n")
+    print(" - Recursivo: ", factorialR(a))
 }
