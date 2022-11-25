@@ -133,12 +133,7 @@ def p_tipo_c(p):
 
 # -- <arr> --
 def p_arr(p):
-    'arr : lBRACKET aux_arr n_add_var_dimension rBRACKET'
-
-def p_aux_arr(p):
-    '''aux_arr : CTE_I'''
-    p[0] = p[1] # Pass the token to the parent rule
-
+    'arr : lBRACKET CTE_I n_save_cteI n_add_var_dimension rBRACKET'
 
 # -- <call_var> --
 def p_call_var(p):
@@ -378,7 +373,7 @@ def p_n_save_var(p):
 def p_n_add_var_dimension(p):
     'n_add_var_dimension : '
     
-    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
+    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-2])
     
 def p_n_save_func_type(p):
     'n_save_func_type : '
@@ -1010,11 +1005,13 @@ def p_n_quad_arr_final_addr(p):
         s2 = stack_Operands.pop()
         s1 = stack_Operands.pop()
         
-        temp1 = Addr_Manager.get_Dir('int', scope)
-        quadruples.append(Quadruple('*', s1, var.sizeDimensions[1], temp1))
+        temp1 = Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[scope].add_Temp('int')
+        quadruples.append(Quadruple('*', s1, const_table[var.sizeDimensions[1]], temp1))
         quad_pointer += 1
         
-        temp2 = Addr_Manager.get_Dir('int', scope)
+        temp2 =  Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[scope].add_Temp('int')
         quadruples.append(Quadruple('+', temp1, s2, temp2))
         stack_Operands.append(temp2)
     
