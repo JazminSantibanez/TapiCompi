@@ -10,9 +10,11 @@ def run(code):
         if(parser.parse(data) == "Success"):
             #print('\nCompilacion exitosa')
             vm = Virtual_Machine(quadruples, directory, const_table)
-            vm.run(False)
+            if (debug == 1):
+                vm.run(True)
+            else:
+                vm.run(False)
                         
-        
         else:
             print('\nCompilacion fallida')
             return
@@ -23,7 +25,10 @@ def run(code):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        #print(sys.argv[1])
+        if (len(sys.argv) > 2):
+            global debug
+            debug = sys.argv[2]
+            
         data = open(sys.argv[1]).read()
         run(data)
     else:

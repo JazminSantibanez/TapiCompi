@@ -2,15 +2,7 @@ program quesini:
 
 main()
 {
-    var bool test
-    test = true
-    if (test)
-    {
-        print(":D")
-    }
-    else 
-    {
-        print(":(")
-    }
+    var 
+    int A, B[5], C, D[3][8], E
     
 }

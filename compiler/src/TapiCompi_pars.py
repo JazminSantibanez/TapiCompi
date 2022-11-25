@@ -51,7 +51,7 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    #directory.Table['global'].print_VarsTable()
+    directory.Table['global'].print_VarsTable()
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -95,11 +95,11 @@ def p_aux_dv3(p):
     'aux_dv3 : ID n_save_var aux_dv4 aux_dv6'
 
 def p_aux_dv4(p):
-    '''aux_dv4 : arr aux_dv5
+    '''aux_dv4 : arr aux_dv5 n_reserve_addresses
                | empty'''
 
 def p_aux_dv5(p):
-    '''aux_dv5 : arr
+    '''aux_dv5 : arr 
                | empty'''
                
 def p_aux_dv6(p):
@@ -826,8 +826,7 @@ def p_n_quad_endfunc(p):
     quadruples.append(Quadruple('ENDFUNC', '', '', ''))
     quad_pointer += 1
     
-        
-    #directory.Table[scope].print_VarsTable() 
+    directory.Table[scope].print_VarsTable() 
     
     # Delete varsTable and reset the scope
     del directory.Table[scope].varsTable
@@ -932,6 +931,23 @@ def p_n_quad_return(p):
     addr = directory.Table['global'].varsTable.Table[scope].get_DirV()
     quadruples.append(Quadruple('RETURN', result, '', addr))
     quad_pointer += 1
+    
+def p_n_reserve_addresses(p):
+    'n_reserve_addresses : '
+    
+    print("Reserving addresses")
+    var = directory.Table[scope].varsTable.Table[current_var]
+    var_dims = var.get_NumDimensions()
+    if ( var_dims == 1): # 1D array, reserve n - 1 addresses where n is the size of the array
+        if (scope == 'global'):
+            for i in range(var.sizeDimensions[0] - 1): Addr_Manager.get_Global_Dir(current_type)
+        else:
+            for i in range(var.sizeDimensions[0] - 1): Addr_Manager.get_Local_Dir(current_type)
+    if ( var_dims == 2): # 2D array, reserve (n * m) - 1 addresses where n and m are the sizes of the matrix
+        if (scope == 'global'):
+            for i in range(var.sizeDimensions[0] * var.sizeDimensions[1] - 1): Addr_Manager.get_Global_Dir(current_type)   
+        else:
+            for i in range(var.sizeDimensions[0] * var.sizeDimensions[1] - 1): Addr_Manager.get_Global_Dir(current_type)
     
 
 # ----------- Methods ----------- #
