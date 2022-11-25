@@ -181,7 +181,12 @@ class Address_Manager:
                 return self.get_Local_Char_Dir()
             case "bool":
                 return self.get_Local_Bool_Dir()
-        
+    
+    def get_Dir(self, type, scope):
+        if (scope == "global"):
+            return self.get_Global_Dir(type)
+        else:
+            return self.get_Local_Dir(type)
     
     def get_Local_Temporal_Dir(self, type):
         match type:

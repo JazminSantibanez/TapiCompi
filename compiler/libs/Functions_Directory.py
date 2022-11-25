@@ -67,6 +67,17 @@ class Function_Info:
         
         self.varsTable.add_Variable(name, type, dirV)
         
+    def add_Local( self, type):
+        match type:
+            case 'int':
+                self.num_int_local += 1
+            case 'float':
+                self.num_float_local += 1
+            case 'char':
+                self.num_char_local += 1
+            case 'bool':
+                self.num_bool_local += 1
+                
     def add_Temp( self, type):
         match type:
             case 'int':

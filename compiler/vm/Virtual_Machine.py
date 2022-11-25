@@ -51,24 +51,38 @@ class Virtual_Machine:
     # ----------- Execution ------------ #
     
     def get_value(self, virtual_addr):
-        # If range is from global variables, use global memory
-        if (GLOBAL_INT_START <= virtual_addr <= GLOBAL_BOOL_END):
-            return self.global_memory.get_value_local(virtual_addr)
-        #if range is from local variables, use current memory
-        elif (LOCAL_INT_START <= virtual_addr <= LOCAL_BOOL_END):
-            return self.current_memory.get_value_local(virtual_addr)
-        # if range is from constants, use constants table
-        elif (CONST_INT_START <= virtual_addr <= CONST_BOOL_END):
-            return self.const_table[virtual_addr]
+        
+        if (isinstance(virtual_addr, int)): # Receives normal virtual address
+            # If range is from global variables, use global memory
+            if (GLOBAL_INT_START <= virtual_addr <= GLOBAL_BOOL_END):
+                return self.global_memory.get_value_local(virtual_addr)
+            #if range is from local variables, use current memory
+            elif (LOCAL_INT_START <= virtual_addr <= LOCAL_BOOL_END):
+                return self.current_memory.get_value_local(virtual_addr)
+            # if range is from constants, use constants table
+            elif (CONST_INT_START <= virtual_addr <= CONST_BOOL_END):
+                return self.const_table[virtual_addr]
+            
+        if (isinstance(virtual_addr, str)): # Receives virtual address pointer
+            pointer = int(virtual_addr[1:-1])
+            addr = int(self.get_value(pointer))
+            return self.get_value(addr)
     
     def set_value(self, virtual_addr, value):
-        # If range is from global variables, use global memory
-        if (GLOBAL_INT_START <= virtual_addr <= GLOBAL_BOOL_END):
-            self.global_memory.set_value_local(virtual_addr, value)
-        #if range is from local variables, use current memory
-        elif (LOCAL_INT_START <= virtual_addr <= LOCAL_BOOL_END):
-            self.current_memory.set_value_local(virtual_addr, value)
-        # Constants must not be changed.
+        
+        if (isinstance(virtual_addr, int)): # Receives normal virtual address
+            # If range is from global variables, use global memory
+            if (GLOBAL_INT_START <= virtual_addr <= GLOBAL_BOOL_END):
+                self.global_memory.set_value_local(virtual_addr, value)
+            #if range is from local variables, use current memory
+            elif (LOCAL_INT_START <= virtual_addr <= LOCAL_BOOL_END):
+                self.current_memory.set_value_local(virtual_addr, value)
+            # Constants must not be changed.
+        
+        if (isinstance(virtual_addr, str)): # Receives virtual address pointer
+            pointer = int(virtual_addr[1:-1])
+            addr = int(self.get_value(pointer))
+            return self.set_value(addr, value)
         
     
     def run(self, debug):
@@ -106,8 +120,8 @@ class Virtual_Machine:
                 
                 # -- Sequential statementes -- #
                 case 'PRINT':
-                    if (isinstance(quadruple.result, int)):
-                        print(self.get_value(quadruple.result))
+                    if (isinstance(quadruple.result, int) or quadruple.result[0] == '('):
+                        print(self.get_value(quadruple.result))                        
                     else:
                         print(quadruple.result[1:-1])
                     
@@ -127,7 +141,11 @@ class Virtual_Machine:
                 case '+':
                     # If operand is a constant, get value from const table
                     # else, get value from current memory
-                    left = self.get_value(quadruple.left)
+                    if (isinstance(quadruple.left, str)): # b at the start, meaning its a number, not direction
+                        left = int(quadruple.left[1:])
+                        quadruple.result = int(quadruple.result[1:-1])
+                    else:
+                        left = self.get_value(quadruple.left)
                     right = self.get_value(quadruple.right)
                     
                     self.set_value(quadruple.result, left + right)
@@ -152,7 +170,7 @@ class Virtual_Machine:
                     right = self.get_value(quadruple.right)
                     
                     if (right == 0):
-                        print('Error: Division by zero.')
+                        raise Exception('Error: Division by zero.')
                         return
                     
                     self.set_value(quadruple.result, left / right)
@@ -282,13 +300,26 @@ class Virtual_Machine:
                     
                     previous_context = self.stack_Contexts.pop()
                     self.current_memory = previous_context.get_Memory()
+                    
                     self.instruction_pointer = previous_context.get_IP() + 1 
                     
                 case 'ENDFUNC': # Move back to previous context
                     
                     previous_context = self.stack_Contexts.pop()
                     self.current_memory = previous_context.get_Memory()
-                    self.instruction_pointer = previous_context.get_IP() + 1    
+                    
+                    self.instruction_pointer = previous_context.get_IP() + 1
+                    
+                case 'VERIFY': # Verify array index
+                    
+                    index = self.get_value(quadruple.left)
+                    limSup = quadruple.right
+                    
+                    if (index < 0 or index >= limSup):
+                        raise Exception("Error: Array index out of bounds.")
+                    
+                    self.instruction_pointer += 1 
+                        
                     
                 case other:
                     print(f'Error: Operation code {quadruple.operator} not recognized.')
