@@ -53,7 +53,7 @@ def p_programa(p):
     '''
     p[0] = "Success"
     
-    directory.Table['global'].print_VarsTable()
+    #directory.Table['global'].print_VarsTable()
 
 def p_aux_prog(p):
     '''aux_prog : dec_var
@@ -831,7 +831,7 @@ def p_n_quad_endfunc(p):
     quadruples.append(Quadruple('ENDFUNC', '', '', ''))
     quad_pointer += 1
     
-    directory.Table[scope].print_VarsTable() 
+    #directory.Table[scope].print_VarsTable() 
     
     # Delete varsTable and reset the scope
     del directory.Table[scope].varsTable

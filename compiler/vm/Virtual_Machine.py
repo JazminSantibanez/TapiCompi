@@ -123,7 +123,7 @@ class Virtual_Machine:
                     if (isinstance(quadruple.result, int) or quadruple.result[0] == '('):
                         print(self.get_value(quadruple.result), end="")                 
                     else:
-                        print(quadruple.result[1:-1])
+                        print(quadruple.result[1:-1], end="")
                     
                     self.instruction_pointer += 1
                     
