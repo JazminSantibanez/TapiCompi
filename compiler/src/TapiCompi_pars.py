@@ -137,8 +137,7 @@ def p_arr(p):
 
 # -- <call_var> --
 def p_call_var(p):
-    '''call_var : ID n_check_var_exists
-                | ID n_check_var_exists aux_cv'''
+    '''call_var : ID n_check_var_exists aux_cv'''
    
     if (len(p) == 3 ):
         global current_type
