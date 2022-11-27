@@ -1,0 +1,50 @@
+program Fibonacci:
+
+func int fiboR(int n){
+    if ( n < 2)
+    {
+        return (n)
+    }
+    return (fiboR(n-1) + fiboR(n-2))
+}
+
+func void fiboC(int n){
+    var int t1, t2, next, i
+    t1 = 0
+    t2 = 1
+    next = 0
+    
+    i = 1
+    while( i < n - 1){
+        if ( i == 1 )
+        { print(t1, " ") }
+        if (i == 2)
+        { print(t2, " ") }
+        
+        next = t1 + t2
+        t1 = t2
+        t2 = next
+
+        print (next, " ")
+
+        i = i + 1
+    }
+}
+
+main(){
+    var int x, i
+    print("Ingresa un numero: ")
+    read(x)
+    print("Fibonacci de ", x, " numeros: ", "\n")
+
+    print(" - Recursivo: ")
+    i = 0
+    while ( i < x ){
+        print(fiboR(i), " ")
+        i = i + 1
+    }
+
+    print("\n", " - Ciclico: ")
+    fiboC(x)
+
+}

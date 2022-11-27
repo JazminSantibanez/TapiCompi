@@ -1,9 +1,5 @@
-program quesito:
-
-var 
-float z;
-
 # queso
+program quesito:
 
 main()
 {

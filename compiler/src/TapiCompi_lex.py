@@ -22,7 +22,7 @@ reserved = {
     'int' : 'INT',
     'float' : 'FLOAT',
     'char' : 'CHAR',
-    'bool' : 'BOOL',
+    'bool' : 'BOOL', 'true' : 'TRUE', 'false' : 'FALSE',
     
     ## <TIPO_C>
     'dataframe' : 'DATAFRAME',
@@ -117,17 +117,18 @@ def t_ID(t):
     return t
 
 def t_CTE_F(t):
-    r'-?\d+\.\d+'
+    r'\d+\.\d+'
     t.value = float(t.value)
     return t
 
 def t_CTE_I(t):
-    r'-?\d+'
+    r'\d+'
     t.value = int(t.value)
     return t
 
 def t_CTE_CHAR(t):
     r'\'[a-zA-Z]\''
+    t.value = t.value[1:-1]
     return t
 
 def t_LETRERO(t):

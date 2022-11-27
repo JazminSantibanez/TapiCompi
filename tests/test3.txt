@@ -1,29 +1,18 @@
-program test3:
+program quesini:
+
+func int fun1(int q, int z)
+{
+    print("en funcion1")
+    return(q + z)
+}
 
 main()
 {
-    var
-    int A, B, C, D;
-    
-    while ( A + B * C < D)
-    {
-        if (A + B < C)
-        {
-            A = B + C
-            do 
-            {
-                A = A - 1
-            } while (A > B + C)
-        }
-        else
-        {
-            while ( B > C + D)
-            {
-                A = B + C * D
-                B = A - D
-            }
-        }
-    }
-    A = B * C
-    C = 0
+    var int a, b
+		print("Suma de a y b")
+		print ("Ingresa a y b")
+        read(a, b)
+        print("En main")
+        print(fun1(a, b))
+        print("De vuelta a main.")
 }

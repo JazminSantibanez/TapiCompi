@@ -29,8 +29,11 @@ stack_Operators = deque() # Stack that stores the operators ( +, -, *, /, etc. )
 stack_Operands = deque() # Stack that stores the operands
 stack_Types = deque() # Stack that stores the types of the operands
 stack_Jumps = deque() # Stack that stores the jumps
+stack_Vars = deque() # Stack that stores the variables
 
 param_counter = 0; # Variable that manages the index of the parameter being analyzed
+
+dim_counter = 1; # Variable that manages the dimension of the var being analyzed
 
 Addr_Manager = Address_Manager()
 
@@ -95,11 +98,11 @@ def p_aux_dv3(p):
     'aux_dv3 : ID n_save_var aux_dv4 aux_dv6'
 
 def p_aux_dv4(p):
-    '''aux_dv4 : arr aux_dv5
+    '''aux_dv4 : arr aux_dv5 n_reserve_addresses
                | empty'''
 
 def p_aux_dv5(p):
-    '''aux_dv5 : arr
+    '''aux_dv5 : arr 
                | empty'''
                
 def p_aux_dv6(p):
@@ -113,8 +116,15 @@ def p_tipo_s(p):
               | CHAR
               | BOOL'''
     p[0] = p[1] # Pass the token to the parent rule
-
-
+    
+def p_CTE_BOOL(p):
+    '''CTE_BOOL : TRUE
+                | FALSE'''
+    if p[1] == 'true':
+        p[0] = True
+    else:
+        p[0] = False
+        
 # -- <tipo_c> --
 def p_tipo_c(p):
     '''tipo_c : DATAFRAME
@@ -124,35 +134,128 @@ def p_tipo_c(p):
 
 # -- <arr> --
 def p_arr(p):
-    'arr : lBRACKET aux_arr n_add_var_dimension rBRACKET'
-
-def p_aux_arr(p):
-    '''aux_arr : CTE_I'''
-    p[0] = p[1] # Pass the token to the parent rule
-
+    'arr : lBRACKET CTE_I n_save_cteI n_add_var_dimension rBRACKET'
 
 # -- <call_var> --
 def p_call_var(p):
-    'call_var : ID aux_cv n_check_var_exists'
+    '''call_var : ID n_check_var_exists aux_cv'''
    
-    global current_type
-    if (directory.Table[scope].varsTable.check_Existence(p[1])):
-        current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
-        addr = directory.Table[scope].varsTable.Table[p[1]].get_DirV()
-    elif (directory.Table['global'].varsTable.check_Existence(p[1])):
-        current_type = directory.Table['global'].varsTable.Table[p[1]].get_Type()
-        addr = directory.Table['global'].varsTable.Table[p[1]].get_DirV()
-        
-    p[0] = addr # Pass the addrs of the variable to the parent rule
+    if ( directory.Table[scope].varsTable.Table[p[1]].numDimensions == 0 ):
+        global current_type
+        if (directory.Table[scope].varsTable.check_Existence(p[1])):
+            current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
+            addr = directory.Table[scope].varsTable.Table[p[1]].get_DirV()
+        elif (directory.Table['global'].varsTable.check_Existence(p[1])):
+            current_type = directory.Table['global'].varsTable.Table[p[1]].get_Type()
+            addr = directory.Table['global'].varsTable.Table[p[1]].get_DirV()
+            
+        p[0] = addr # Pass the addrs of the variable to the parent rule
+    else:
+        p[0] = p[3] # Pass the addrs of the variable to the parent rule
     
 def p_aux_cv(p):
-    '''aux_cv : arr aux_cv2
+    '''aux_cv :  call_arr aux_cv2 n_quad_arr_final_addr 
               | empty'''
+    if (len(p) == 4):
+        p[0] = p[3] # Pass the addrs of the variable to the parent rule
 
 def p_aux_cv2(p):
-    '''aux_cv2 : arr
+    '''aux_cv2 : call_arr
                | empty'''
+               
+def p_call_arr(p):
+    'call_arr : lBRACKET n_push_arr_name n_arr_check_dims h_exp n_quad_arr_verify rBRACKET n_remove_false_bottom n_pop_arr_name'
 
+def p_n_push_arr_name(p):
+    'n_push_arr_name : '
+    stack_Vars.append(current_var)
+    
+def p_n_pop_arr_name(p):
+    'n_pop_arr_name : '
+    
+    stack_Vars.pop()
+    
+def p_n_arr_check_dims(p):
+    'n_arr_check_dims : '
+    
+    global stack_Operators
+    global current_var
+    global func
+    current_var = stack_Vars[-1]
+    
+    try:
+        var = directory.Table[scope].varsTable.Table[current_var]
+        func = scope
+    except KeyError:
+        var = directory.Table['global'].varsTable.Table[current_var]
+        func = 'global'
+    
+    if (var.get_NumDimensions() >= dim_counter):
+        stack_Operators.append('[')
+    else:
+        print("Error: Variable '%s' was declared with less dimensions." % current_var)
+        p_error(-2)
+        
+def p_n_quad_arr_verify(p):
+    'n_quad_arr_verify : '
+    
+    global dim_counter
+    global quad_pointer
+    
+    global current_var
+    current_var = stack_Vars[-1]
+    
+    result = stack_Operands[-1]
+    result_type = stack_Types[-1]
+    
+    if (result_type != 'int'):
+        print("Error: Array index must be an integer")
+        p_error(-2)
+    
+    dim = directory.Table[func].varsTable.Table[current_var].sizeDimensions[dim_counter - 1]
+    quadruples.append(Quadruple('VERIFY', result, dim, ''))
+    quad_pointer += 1
+    
+def p_n_remove_false_bottom(p):
+    'n_remove_false_bottom : '
+    
+    global dim_counter
+    if (stack_Operators[-1] == '['):
+        stack_Operators.pop()
+    else:
+        print("Error: Bracket mismatch")
+        p_error(-2)
+    
+    dim_counter += 1
+    
+   
+    
+def p_n_quad_arr_final_addr(p):
+    'n_quad_arr_final_addr : '
+    
+    global quad_pointer
+    var = directory.Table[func].varsTable.Table[current_var]
+    
+    if (var.get_NumDimensions() == 2):
+        s2 = stack_Operands.pop()
+        s1 = stack_Operands.pop()
+        
+        temp1 = Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[func].add_Temp('int')
+        quadruples.append(Quadruple('*', s1, const_table[var.sizeDimensions[1]], temp1))
+        quad_pointer += 1
+        
+        temp2 =  Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[func].add_Temp('int')
+        quadruples.append(Quadruple('+', temp1, s2, temp2))
+        stack_Operands.append(temp2)
+    
+    tp = Addr_Manager.get_Local_Int_Temp_Dir()
+    directory.Table[func].add_Temp('int')
+    quadruples.append(Quadruple('+', 'b'+str(var.get_DirV()), stack_Operands.pop(), '(' + str(tp) + ')'))
+    
+    p[0] = '(' + str(tp) + ')'
+        
 
 # -- <dec_func> --
 def p_dec_func(p):
@@ -306,8 +409,10 @@ def p_factor(p):
     '''factor : lPAREN n_false_bottom_start h_exp rPAREN n_false_bottom_end
               | CTE_I n_save_cteI n_push_operand
               | CTE_F n_save_cteF n_push_operand
+              | CTE_BOOL n_save_cteB n_push_operand
               | call_var n_push_operand
               | call_func'''
+            
     
 def p_empty(p):
     'empty :'
@@ -350,10 +455,7 @@ def p_n_save_var(p):
         print("Error: Multiple declaration. \n Variable '%s' already exists in scope '%s'" % (current_var, scope))
         p_error(-2)
     
-    if (scope == 'global'):
-        addr = Addr_Manager.get_Global_Dir(current_type)
-    else:
-        addr = Addr_Manager.get_Local_Dir(current_type)
+    addr = Addr_Manager.get_Dir(current_type, scope)
     
     #print(scope, current_var, current_type, addr)
     directory.Table[scope].add_Variable(current_var, current_type, addr)
@@ -361,7 +463,7 @@ def p_n_save_var(p):
 def p_n_add_var_dimension(p):
     'n_add_var_dimension : '
     
-    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-1])
+    directory.Table[scope].varsTable.add_Var_Dimension(current_var, p[-2])
     
 def p_n_save_func_type(p):
     'n_save_func_type : '
@@ -410,8 +512,13 @@ def p_n_add_param(p):
 def p_n_check_var_exists(p):
     'n_check_var_exists : '
     
-    if (not directory.Table[scope].varsTable.check_Existence(p[-2]) and not directory.Table['global'].varsTable.check_Existence(p[-2])):
-        print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (p[-2], scope))
+    global current_var
+    current_var = p[-1]
+    global dim_counter
+    dim_counter = 1
+    
+    if (not directory.Table[scope].varsTable.check_Existence(current_var) and not directory.Table['global'].varsTable.check_Existence(current_var)):
+        print("Error: Variable '%s' does not exist in scope '%s' nor in global" % (current_var, scope))
         p_error(-2)
 
 def p_n_save_cteF(p):
@@ -425,6 +532,20 @@ def p_n_save_cteF(p):
         addr = const_table[value]
     else:
         addr = Addr_Manager.get_Const_Float_Dir()
+        const_table[p[-1]] = addr
+    p[0] = addr # Return the value of the constant
+    
+def p_n_save_cteB(p):
+    'n_save_cteB : '
+    
+    global current_type
+    current_type = 'bool'
+    
+    value = p[-1]
+    if value in const_table:
+        addr = const_table[value]
+    else:
+        addr = Addr_Manager.get_Const_Bool_Dir()
         const_table[p[-1]] = addr
     p[0] = addr # Return the value of the constant
     
@@ -663,7 +784,7 @@ def p_n_quad_and_or(p):
 def p_n_false_bottom_start(p):
     'n_false_bottom_start : '
     
-    global stack_Operands
+    global stack_Operators
     stack_Operators.append('(')
     
 def p_n_false_bottom_end(p):
@@ -800,7 +921,6 @@ def p_n_quad_endfunc(p):
     quadruples.append(Quadruple('ENDFUNC', '', '', ''))
     quad_pointer += 1
     
-        
     #directory.Table[scope].print_VarsTable() 
     
     # Delete varsTable and reset the scope
@@ -907,6 +1027,21 @@ def p_n_quad_return(p):
     quadruples.append(Quadruple('RETURN', result, '', addr))
     quad_pointer += 1
     
+def p_n_reserve_addresses(p):
+    'n_reserve_addresses : '
+    
+    var = directory.Table[scope].varsTable.Table[current_var]
+    var_dims = var.get_NumDimensions()
+    if ( var_dims == 1): # 1D array, reserve n - 1 addresses where n is the size of the array
+        for i in range(var.sizeDimensions[0] - 1): 
+            Addr_Manager.get_Dir(current_type, scope)
+            directory.Table[scope].add_Local(current_type)
+            
+    if ( var_dims == 2): # 2D array, reserve (n * m) - 1 addresses where n and m are the sizes of the matrix
+        for i in range(var.sizeDimensions[0] * var.sizeDimensions[1] - 1): 
+            Addr_Manager.get_Dir(current_type, scope)
+            directory.Table[scope].add_Local(current_type)
+            
 
 # ----------- Methods ----------- #
 # From PLY documentation
