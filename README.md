@@ -155,10 +155,10 @@ else
 Si es falsa, ejecuta los estatutos dentro de los corchetes de else (en caso de existir).
 
 #### Ciclo while
-
-```
 Repite las instrucciones mientras se cumpla la expresión evaluada. Primero evalua y después ejecuta.
 while ( expresion )
+
+```
 {
   [estatutos]
 }
@@ -185,6 +185,15 @@ Ordenadas de mayor a menor presedencia (de arriba a abajo, y de izquierda a dere
 * Aritméticas: * y /, + y -
 
 Las operaciones relacionales y lógicas tienen como resultado valores tipo `bool`.
+
+#### Arreglos
+Pueden haber arreglos de 1 y 2 dimensiones.
+
+```
+var type name[dim], name[dim1][dim2]
+```
+- Se declaran igual que las variables, con el tamaño de la dimensión entre corchetes. 
+- El tamaño de la dimensión solo puede ser un número entero.
   
  ---
  
