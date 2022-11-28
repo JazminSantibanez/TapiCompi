@@ -3,25 +3,22 @@ program FindVector:
 var
 int V[8]
 
+
 func void Find(int x, int size){
     var int i
-    bool found 
-    found = false
     i = 0
 
     while ( i < size){
         if (V[i] == x)
-        print ("Valor encontrado en la posicion :", i)
-        found = True
-    }
-
-    if (found == False){
-        print("El valor no esta en el arreglo")
+        {
+            print("Numero ", x, " encontrado en i:", i)  
+        }
     }
 }
 
 main()
 {
+    var
     int x
     V[0] = 3
     V[1] = 6
@@ -34,5 +31,6 @@ main()
     
     print("Ingresa el numero a buscar: ")
     read(x)
+    Find(x, 8)
 
 }

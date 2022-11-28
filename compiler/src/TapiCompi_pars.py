@@ -140,7 +140,12 @@ def p_arr(p):
 def p_call_var(p):
     '''call_var : ID n_check_var_exists aux_cv'''
    
-    if ( directory.Table[scope].varsTable.Table[p[1]].numDimensions == 0 ):
+    try:
+        var = directory.Table[scope].varsTable.Table[p[1]]
+    except KeyError:
+       var = directory.Table['global'].varsTable.Table[p[1]]
+       
+    if ( var.numDimensions == 0 ):
         global current_type
         if (directory.Table[scope].varsTable.check_Existence(p[1])):
             current_type = directory.Table[scope].varsTable.Table[p[1]].get_Type()
@@ -165,96 +170,6 @@ def p_aux_cv2(p):
                
 def p_call_arr(p):
     'call_arr : lBRACKET n_push_arr_name n_arr_check_dims h_exp n_quad_arr_verify rBRACKET n_remove_false_bottom n_pop_arr_name'
-
-def p_n_push_arr_name(p):
-    'n_push_arr_name : '
-    stack_Vars.append(current_var)
-    
-def p_n_pop_arr_name(p):
-    'n_pop_arr_name : '
-    
-    stack_Vars.pop()
-    
-def p_n_arr_check_dims(p):
-    'n_arr_check_dims : '
-    
-    global stack_Operators
-    global current_var
-    global func
-    current_var = stack_Vars[-1]
-    
-    try:
-        var = directory.Table[scope].varsTable.Table[current_var]
-        func = scope
-    except KeyError:
-        var = directory.Table['global'].varsTable.Table[current_var]
-        func = 'global'
-    
-    if (var.get_NumDimensions() >= dim_counter):
-        stack_Operators.append('[')
-    else:
-        print("Error: Variable '%s' was declared with less dimensions." % current_var)
-        p_error(-2)
-        
-def p_n_quad_arr_verify(p):
-    'n_quad_arr_verify : '
-    
-    global dim_counter
-    global quad_pointer
-    
-    global current_var
-    current_var = stack_Vars[-1]
-    
-    result = stack_Operands[-1]
-    result_type = stack_Types[-1]
-    
-    if (result_type != 'int'):
-        print("Error: Array index must be an integer")
-        p_error(-2)
-    
-    dim = directory.Table[func].varsTable.Table[current_var].sizeDimensions[dim_counter - 1]
-    quadruples.append(Quadruple('VERIFY', result, dim, ''))
-    quad_pointer += 1
-    
-def p_n_remove_false_bottom(p):
-    'n_remove_false_bottom : '
-    
-    global dim_counter
-    if (stack_Operators[-1] == '['):
-        stack_Operators.pop()
-    else:
-        print("Error: Bracket mismatch")
-        p_error(-2)
-    
-    dim_counter += 1
-    
-   
-    
-def p_n_quad_arr_final_addr(p):
-    'n_quad_arr_final_addr : '
-    
-    global quad_pointer
-    var = directory.Table[func].varsTable.Table[current_var]
-    
-    if (var.get_NumDimensions() == 2):
-        s2 = stack_Operands.pop()
-        s1 = stack_Operands.pop()
-        
-        temp1 = Addr_Manager.get_Local_Temporal_Dir('int')
-        directory.Table[func].add_Temp('int')
-        quadruples.append(Quadruple('*', s1, const_table[var.sizeDimensions[1]], temp1))
-        quad_pointer += 1
-        
-        temp2 =  Addr_Manager.get_Local_Temporal_Dir('int')
-        directory.Table[func].add_Temp('int')
-        quadruples.append(Quadruple('+', temp1, s2, temp2))
-        stack_Operands.append(temp2)
-    
-    tp = Addr_Manager.get_Local_Int_Temp_Dir()
-    directory.Table[func].add_Temp('int')
-    quadruples.append(Quadruple('+', 'b'+str(var.get_DirV()), stack_Operands.pop(), '(' + str(tp) + ')'))
-    
-    p[0] = '(' + str(tp) + ')'
         
 
 # -- <dec_func> --
@@ -1041,7 +956,101 @@ def p_n_reserve_addresses(p):
         for i in range(var.sizeDimensions[0] * var.sizeDimensions[1] - 1): 
             Addr_Manager.get_Dir(current_type, scope)
             directory.Table[scope].add_Local(current_type)
-            
+
+def p_n_push_arr_name(p):
+    'n_push_arr_name : '
+    stack_Vars.append(current_var)
+    
+def p_n_pop_arr_name(p):
+    'n_pop_arr_name : '
+    
+    stack_Vars.pop()
+    
+def p_n_arr_check_dims(p):
+    'n_arr_check_dims : '
+    
+    global stack_Operators
+    global current_var
+    global func
+    current_var = stack_Vars[-1]
+    
+    try:
+        var = directory.Table[scope].varsTable.Table[current_var]
+        func = scope
+    except KeyError:
+        var = directory.Table['global'].varsTable.Table[current_var]
+        func = 'global'
+    
+    if (var.get_NumDimensions() >= dim_counter):
+        stack_Operators.append('[')
+    else:
+        print("Error: Variable '%s' was declared with less dimensions." % current_var)
+        p_error(-2)
+        
+def p_n_quad_arr_verify(p):
+    'n_quad_arr_verify : '
+    
+    global dim_counter
+    global quad_pointer
+    
+    global current_var
+    current_var = stack_Vars[-1]
+    
+    result = stack_Operands[-1]
+    result_type = stack_Types[-1]
+    
+    if (result_type != 'int'):
+        print("Error: Array index must be an integer")
+        p_error(-2)
+    
+    dim = directory.Table[func].varsTable.Table[current_var].sizeDimensions[dim_counter - 1]
+    quadruples.append(Quadruple('VERIFY', result, dim, ''))
+    quad_pointer += 1
+    
+def p_n_remove_false_bottom(p):
+    'n_remove_false_bottom : '
+    
+    global dim_counter
+    if (stack_Operators[-1] == '['):
+        stack_Operators.pop()
+    else:
+        print("Error: Bracket mismatch")
+        p_error(-2)
+    
+    dim_counter += 1
+    
+   
+    
+def p_n_quad_arr_final_addr(p):
+    'n_quad_arr_final_addr : '
+    
+    global quad_pointer
+    var = directory.Table[func].varsTable.Table[current_var]
+    
+    if (var.get_NumDimensions() == 2):
+        s2 = stack_Operands.pop()
+        s1 = stack_Operands.pop()
+        
+        stack_Types.pop()
+        stack_Types.pop()
+        
+        temp1 = Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[func].add_Temp('int')
+        quadruples.append(Quadruple('*', s1, const_table[var.sizeDimensions[1]], temp1))
+        quad_pointer += 1
+        
+        temp2 =  Addr_Manager.get_Local_Temporal_Dir('int')
+        directory.Table[func].add_Temp('int')
+        quadruples.append(Quadruple('+', temp1, s2, temp2))
+        quad_pointer += 1
+        stack_Operands.append(temp2)
+    
+    tp = Addr_Manager.get_Local_Int_Temp_Dir()
+    directory.Table[func].add_Temp('int')
+    quadruples.append(Quadruple('+', 'b'+str(var.get_DirV()), stack_Operands.pop(), '(' + str(tp) + ')'))
+    quad_pointer += 1
+
+    p[0] = '(' + str(tp) + ')'       
 
 # ----------- Methods ----------- #
 # From PLY documentation
